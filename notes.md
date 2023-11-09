@@ -178,6 +178,45 @@ canal连接的mysql服务的server-id不能为0[^ 11]，必须另外设置其他
 
 因为`redis-cli`目前并不支持主机名，因此无论是多机之间或者是docker内的多节点之间，都不能使用类似于`hostname:port`的形式，只能使用`ip:port`的形式[^ 13]。
 
+### 12. docker一直警告：WARNING! Your password will be stored unencrypted in /home/sw/.docker/config.json.
+
+因为密码存在config.json里，不安全。
+
+解决办法：
+
+1. 从[docker-credential-helpers](https://github.com/docker/docker-credential-helpers/releases)下载一个helper，mac下载osxkeychain，linux下载pass或者secretservice，win下载wincred。
+
+2. 把下载的文件移动到一个固定的文件夹里，比如`/opt/docker-credential`，然后在shell的配置文件里把这个目录添加到PATH，然后source配置文件刷新之。
+
+   ```sh
+   # 比如zsh就添加到~/.zshrc里
+   export PATH=/opt/docker-credential:$PATH
+   ```
+
+3. 给这个文件可执行权限
+
+   ```sh
+   sudo chmod +x /path/to/the/helper
+   ```
+
+4. 创建一个软链接指向该文件（因为下载的文件后面带着版本号，但是docker只能识别形如docker-credential-xxxx的文件）：
+
+   ```sh
+   sudo ln -s /path/to/the/helper docker-credential-pass
+   ```
+
+5. 在`~/.docker/config.json`文件里写入使用的加密文件：
+
+   ```json
+   {
+           "credsStore": "pass"
+   }
+   ```
+
+   上一步得到的是docker-credential-xxxx文件就在这里填写xxxx，比如docker-credential-pass就填写pass。
+
+6. 然后docker logout再docker login就没有烦人的warning了
+
 # 配置
 
 ## redis cluster
