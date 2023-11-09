@@ -1,0 +1,19 @@
+version: '2'
+services:
+  canal:
+    image: canal/canal-server:latest
+#    image: my-canal
+    container_name: canal
+    ports:
+      - "11111:11111"
+    volumes:
+      - ./conf/example/instance.properties:/home/admin/canal-server/conf/example/instance.properties
+      - ./conf/canal.properties:/home/admin/canal-server/conf/canal.properties
+#      - ./conf:/home/admin/canal-server/conf
+      - ./logs:/home/admin/canal-server/logs
+    networks:
+      cloud:
+
+networks:
+  cloud:
+    external: true

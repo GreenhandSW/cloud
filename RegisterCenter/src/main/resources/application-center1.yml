@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: RegCenter1
+server:
+  port: 13001
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    healthcheck:
+      enabled: true
+    service-url:
+      defaultZone: http://${centers.center0.name}:${centers.center0.port}/eureka/, http://${centers.center2.name}:${centers.center2.port}/eureka/

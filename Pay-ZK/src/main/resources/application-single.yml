@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: pay
+  cloud:
+    zookeeper:
+      connect-string: ${zookeeper.host}:${zookeeper.port}
+server:
+  port: 10100
+zookeeper:
+  host: 172.28.0.6
+  port: 14000
