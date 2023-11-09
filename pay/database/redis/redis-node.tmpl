@@ -1,0 +1,46 @@
+# 端口号
+port 6379
+
+# 日志级别，默认notice
+loglevel notice
+
+# 设置客户端连接后进行任何其他指定前需要使用的密码
+requirepass cloud
+
+## 当master服务设置了密码保护时(用requirepass制定的密码)
+# slave服务连接master的密码
+masterauth cloud
+
+# daemonize no 将daemonize yes注释起来或者 daemonize no设置，因为该配置和docker run中-d参数冲突，会导致容器一直启动失败
+daemonize no
+
+# 任何主机都可以连接到redis
+bind 0.0.0.0
+
+# 是否开启保护模式，默认开启。要是配置里没有指定bind和密码。开启该参数后，redis只会本地进行访问，拒绝外部访问。
+protected-mode yes
+
+# 开启AOF
+appendonly yes
+
+# 集群开关，如果配置yes则开启集群功能，此redis实例作为集群的一个节点，否则，它是一个普通的单一的redis实例。
+cluster-enabled yes
+
+# 集群配置文件的名称，此配置文件不能人工编辑，它是集群节点自动维护的文件，主要用于记录集群中有哪些节点、他们的状态以及一些持久化参数等，方便在重启时恢复这些状态。通常是在收到请求之后这个文件就会被更新。
+cluster-config-file nodes.conf
+
+# 节点互连超时的阀值。集群节点超时毫秒数
+cluster-node-timeout 15000
+
+# 以下三个配置参数静态设定节点的运行参数, 包括对外IP, 普通Redis命令端口和集群桥接端口
+
+# Redis Cluster 不支持NATted环境和IP地址或TCP端口被重映射(remapped)的环境。
+# Docker使用一种名叫port mapping的技术, 运行于Docker容器内的程序实际对外使用的端口和监听的端口可不相同. 为了让Docker 兼容Redis Cluster, 需要使用Docker的host network模式。
+# 为了使Redis集群在这样的环境中工作，静态每个节点都知道需要其公共地址的配置
+cluster-announce-ip ${ANNOUNCE_IP}
+
+# 客户端连接端口
+cluster-announce-port ${PORT}
+
+# 总线端口为普通端口port+10000，所谓Cluster bus, 即使用一种二进制协议(binary protocol)进行集群内点对点(node-to-node)通讯, 包括节点失效检测, 配置更新, 故障转移(failover)认证等
+cluster-announce-bus-port ${BUS_PORT}

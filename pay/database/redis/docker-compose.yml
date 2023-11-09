@@ -1,0 +1,121 @@
+version: '2'
+
+services:
+  redis-cluster:
+    image: redis:latest
+    networks:
+      redis:
+        ipv4_address: 172.200.0.2
+    command: redis-cli -a cloud --cluster create 172.200.0.11:6379 172.200.0.12:6379 172.200.0.13:6379 172.200.0.14:6379 172.200.0.15:6379 172.200.0.16:6379 --cluster-replicas 1  --cluster-yes
+    depends_on:
+      - redis-node0
+      - redis-node1
+      - redis-node2
+      - redis-node3
+      - redis-node4
+      - redis-node5
+
+  redis-node0: # 服务名称
+    image: redis:latest # 创建容器时所需的镜像
+    container_name: redis-node0 # 容器名称
+    restart: "no" # 容器总是重新启动
+    networks:
+      redis:
+        ipv4_address: 172.200.0.11
+    ports:
+      - "10000:6379"
+      - "20000:16379"
+    volumes: # 数据卷，目录挂载
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node0/conf:/etc/redis
+      - ./redis-node0/data:/data
+    command: redis-server /etc/redis/redis.conf # 覆盖容器启动后默认执行的命令
+  redis-node1:
+    image: redis:latest
+    container_name: redis-node1
+    networks:
+      redis:
+        ipv4_address: 172.200.0.12
+    ports:
+      - "10001:6379"
+      - "20001:16379"
+    volumes:
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node1/conf:/etc/redis
+      - ./redis-node1/data:/data
+    command: redis-server /etc/redis/redis.conf
+  redis-node2:
+    image: redis:latest
+    container_name: redis-node2
+    networks:
+      redis:
+        ipv4_address: 172.200.0.13
+    ports:
+      - "10002:6379"
+      - "20002:16379"
+    volumes:
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node2/conf:/etc/redis
+      - ./redis-node2/data:/data
+    command: redis-server /etc/redis/redis.conf
+  redis-node3:
+    image: redis:latest
+    container_name: redis-node3
+    networks:
+      redis:
+        ipv4_address: 172.200.0.14
+    ports:
+      - "10003:6379"
+      - "20003:16379"
+    volumes:
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node3/conf:/etc/redis
+      - ./redis-node3/data:/data
+    command: redis-server /etc/redis/redis.conf
+    depends_on:
+      - redis-node0
+      - redis-node1
+      - redis-node2
+  redis-node4:
+    image: redis:latest
+    container_name: redis-node4
+    networks:
+      redis:
+        ipv4_address: 172.200.0.15
+    ports:
+      - "10004:6379"
+      - "20004:16379"
+    volumes:
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node4/conf:/etc/redis
+      - ./redis-node4/data:/data
+    command: redis-server /etc/redis/redis.conf
+    depends_on:
+      - redis-node0
+      - redis-node1
+      - redis-node2
+  redis-node5:
+    image: redis:latest
+    container_name: redis-node5
+    networks:
+      redis:
+        ipv4_address: 172.200.0.16
+    ports:
+      - "10005:6379"
+      - "20005:16379"
+    volumes:
+      - ./etc_rc.local:/etc/rc.local
+      - ./redis-node5/conf:/etc/redis
+      - ./redis-node5/data:/data
+    command: redis-server /etc/redis/redis.conf
+    depends_on:
+      - redis-node0
+      - redis-node1
+      - redis-node2
+
+# 自动创建网络，并手动指定IP网段
+networks:
+  redis:
+    ipam:
+      config:
+        - subnet: 172.200.0.0/16

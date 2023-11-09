@@ -38,7 +38,7 @@
 **/.gitignore
 
 ### ZooKeeper ###
-Pay-ZK/zookeeper/*
+Pay-ZK/zookeeper/*/
 
 ### Canal ###
 canal/canal/logs/*

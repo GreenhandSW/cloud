@@ -1,0 +1,59 @@
+version: '2'
+services:
+  master0:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./master0/conf/my.cnf:/etc/my.cnf
+      - ./master0/log:/var/log/mysql
+      - ./master0/data:/var/lib/mysql
+      - ./payment.sql:/docker-entrypoint-initdb.d/payment.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: cloud
+      TZ: Asia/Shanghai
+    networks:
+      cloud:
+  slave1:
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./slave1/conf/my.cnf:/etc/my.cnf
+      - ./slave1/log:/var/log/mysql
+      - ./slave1/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: cloud
+      TZ: Asia/Shanghai
+    networks:
+      cloud:
+  slave2:
+    image: mysql:latest
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./slave2/conf/my.cnf:/etc/my.cnf
+      - ./slave2/log:/var/log/mysql
+      - ./slave2/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: cloud
+      TZ: Asia/Shanghai
+    networks:
+      cloud:
+#  canal:
+#    image: canal/canal-server:latest
+#    #    image: my-canal
+#    container_name: canal
+#    ports:
+#      - "11111:11111"
+#    volumes:
+#      - ./canal/conf/example/instance.properties:/home/admin/canal-server/conf/example/instance.properties
+#      - ./canal/conf/canal.properties:/home/admin/canal-server/conf/canal.properties
+#      #      - ./conf:/home/admin/canal-server/conf
+#      - ./canal/logs:/home/admin/canal-server/logs
+#    depends_on:
+#      - master0
+
+networks:
+  cloud:
+    external: true
