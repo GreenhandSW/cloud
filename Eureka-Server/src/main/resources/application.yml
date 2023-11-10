@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: EurekaServer
+  profiles:
+    active: single
+server:
+  port: 13000
+eureka:
+  instance:
+    hostname: localhost
+  server0:
+    name: server0
+    host: localhost
+    port: 13000
+  server1:
+    name: server1
+    host: localhost
+    port: 13001
+  server2:
+    name: server2
+    host: localhost
+    port: 13002

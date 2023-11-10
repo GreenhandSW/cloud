@@ -38,7 +38,13 @@
 **/.gitignore
 
 ### ZooKeeper ###
-Pay-ZK/zookeeper/*/
+docker-compose/zookeeper/*/
 
 ### Canal ###
-canal/canal/logs/*
+docker-compose/canal/logs/
+
+### MySQL ###
+docker-compose/mysql/*/
+
+### Redis ###
+docker-compose/redis/*/

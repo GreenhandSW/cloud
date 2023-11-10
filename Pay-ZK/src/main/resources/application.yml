@@ -27,15 +27,16 @@ druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
 
 zookeepers:
-  node0:
-    name: center0
-    host: 127.0.0.1
+  zk0:
+    name: zk0
+    host: localhost
     port: 14000
-  node1:
-    name: center1
-    host: 127.0.0.1
+  zk1:
+    name: zk0
+    host: localhost
     port: 14001
-  node2:
-    name: center2
-    host: 127.0.0.1
+  zk2:
+    name: zk0
+    host: localhost
     port: 14002
+

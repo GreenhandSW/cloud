@@ -28,4 +28,9 @@ public class BaseService<T, ID extends Serializable, R extends JpaRepository<T, 
     public void delete(ID id){
         r.deleteById(id);
     }
+
+    // 若需要用到必须重写！！！
+    public <S extends T> S update(S entity){
+        return null;
+    }
 }

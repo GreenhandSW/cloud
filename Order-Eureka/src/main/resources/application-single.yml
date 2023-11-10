@@ -1,0 +1,14 @@
+server:
+  port: 12000
+register:
+  port: 13000
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: order${server.port}
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${register.port}/eureka/

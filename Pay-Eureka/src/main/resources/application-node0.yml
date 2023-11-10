@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: pay
+server:
+  port: 10000
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: pay${server.port}
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${registers.node0.host}:${registers.node0.port}/eureka/, http://${registers.node1.host}:${registers.node1.port}/eureka/, http://${registers.node2.host}:${registers.node2.port}/eureka/

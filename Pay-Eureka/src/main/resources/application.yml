@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: pay
+  profiles:
+    active: single
+#  spring.datasource.url=jdbc:mysql://localhost:3306/cloud?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+#spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+#spring.datasource.username=root
+#spring.datasource.password=bytedance
+#spring.data.jpa.repositories.enabled=true
+druid:
+  pay:
+    master:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3306/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    slave1:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3307/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    slave2:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3308/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+registers:
+  node0:
+    name: center0
+    host: localhost
+    port: 13000
+  node1:
+    name: center1
+    host: localhost
+    port: 13001
+  node2:
+    name: center2
+    host: localhost
+    port: 13002

@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: order
+  cloud:
+    zookeeper:
+      connect-string: ${zookeeper.host}:${zookeeper.port}
+server:
+  port: 12000
+zookeeper:
+  name: zk0
+  host: localhost
+  port: 14000

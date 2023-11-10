@@ -7,5 +7,6 @@ spring:
 server:
   port: 10100
 zookeeper:
-  host: 172.28.0.6
+  name: zk0
+  host: localhost
   port: 14000
