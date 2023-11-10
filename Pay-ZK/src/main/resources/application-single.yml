@@ -5,7 +5,7 @@ spring:
     zookeeper:
       connect-string: ${zookeeper.host}:${zookeeper.port}
 server:
-  port: 10100
+  port: 10000
 zookeeper:
   name: zk0
   host: localhost

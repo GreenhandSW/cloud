@@ -1,0 +1,41 @@
+### 内部存入
+POST http://{{host}}:{{payPort}}/{{pay}}/add
+Content-Type: application/json
+
+{
+  "id":998,
+  "serial": "不知道"
+}
+
+### 内部查询
+POST http://{{host}}:{{payPort}}/{{pay}}/get
+Content-Type: application/json
+
+998
+
+### 用户存入
+POST http://{{host}}:{{orderPort}}/{{order}}/add
+Content-Type: application/json
+
+{
+  "id":996,
+  "serial": "不知道"
+}
+
+### 用户查询
+POST http://{{host}}:{{orderPort}}/{{order}}/get
+Content-Type: application/json
+
+1000
+
+### 内部查看服务
+POST http://{{host}}:{{payPort}}/{{pay}}/discovery
+Content-Type: application/json
+
+### zookeeper查看
+POST http://{{host}}:{{payPort}}/{{pay}}/zookeeper
+Content-Type: application/json
+
+### zookeeper用户查看
+POST http://{{host}}:{{orderPort}}/{{order}}/zookeeper
+Content-Type: application/json
