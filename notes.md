@@ -216,6 +216,8 @@ canal连接的mysql服务的server-id不能为0[^ 11]，必须另外设置其他
    上一步得到的是docker-credential-xxxx文件就在这里填写xxxx，比如docker-credential-pass就填写pass。
 
 6. 然后docker logout再docker login就没有烦人的warning了
+### 13. zookeeper服务报错：Cannot invoke "java.net.InetAddress.getHostAddress()" because the return value of "java.net.InetSocketAddress.getAddress()" is null
+不要惊慌，目前暂时没啥影响，仍然可以正常使用。暂时忽略。
 
 # 配置
 
