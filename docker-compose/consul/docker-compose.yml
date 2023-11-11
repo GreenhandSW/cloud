@@ -1,0 +1,56 @@
+version: '2'
+services:
+  ui:
+    image: consul
+    container_name: ui
+    restart: always
+    command: agent -client=0.0.0.0 -retry-join=consul0 -ui -node=ui
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./ui/data:/consul/data
+      - ./ui/log:/var/log/consul
+      - ./ui/conf:/consul/config
+    networks:
+      cloud:
+    depends_on:
+      - consul0
+      - consul1
+      - consul2
+  consul0:
+    image: consul
+    container_name: consul0
+    restart: always
+    command: agent -server -client=0.0.0.0 -bootstrap-expect=3 -node=consul0
+    volumes:
+      - ./consul0/data:/consul/data
+      - ./consul0/log:/var/log/consul
+      - ./consul0/conf:/consul/config
+    networks:
+      cloud:
+  consul1:
+    image: consul
+    container_name: consul1
+    restart: always
+    command: agent -server -client=0.0.0.0 -retry-join=consul0 -node=consul1
+    volumes:
+      - ./consul1/data:/consul/data
+      - ./consul1/log:/var/log/consul
+      - ./consul1/conf:/consul/config
+    networks:
+      cloud:
+  consul2:
+    image: consul
+    container_name: consul2
+    restart: always
+    command: agent -server -client=0.0.0.0 -retry-join=consul0 -node=consul2
+    volumes:
+      - ./consul2/data:/consul/data
+      - ./consul2/log:/var/log/consul
+      - ./consul2/conf:/consul/config
+    networks:
+      cloud:
+
+networks:
+  cloud:
+    external: true

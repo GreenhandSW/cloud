@@ -48,3 +48,6 @@ docker-compose/mysql/*/
 
 ### Redis ###
 docker-compose/redis/*/
+
+### Consul ###
+docker-compose/consul/*/

@@ -1,0 +1,9 @@
+server:
+  port: 12002
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}

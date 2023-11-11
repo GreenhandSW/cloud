@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: order
+  profiles:
+    active: single
+pay:
+  name: pay
+  address: localhost
+  port: 10000
+  prefix: pay
+
+# 暂时写成请求一个固定节点，后面看怎么扩展
+request:
+  service:
+    url: http://${pay.address}:${pay.port}/${pay.prefix}

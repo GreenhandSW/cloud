@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: pay
+  profiles:
+    active: single
+druid:
+  pay:
+    master:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3306/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    slave1:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3307/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    slave2:
+      username: root
+      password: cloud
+      url: jdbc:mysql://localhost:3308/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
