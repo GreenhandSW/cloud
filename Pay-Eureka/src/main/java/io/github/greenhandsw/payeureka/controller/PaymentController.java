@@ -18,24 +18,4 @@ import java.util.List;
 @RestController("pay")
 @RequestMapping("/pay")
 public class PaymentController extends BaseController<Payment, PaymentService, Long, PaymentRepository> {
-    @Resource
-    private DiscoveryClient discoveryClient;
-
-    @PostMapping("/discovery")
-    public Object discovery(){
-        // 获取服务列表的信息
-        List<String> services=discoveryClient.getServices();
-        for (String service :
-                services) {
-            log.info("******service: " + service);
-        }
-        // 获取所有实例
-        List<ServiceInstance> instances=discoveryClient.getInstances("pay");
-        for (ServiceInstance instance :
-                instances) {
-            log.info("{}\t{}:{}/{}", instance.getServiceId(), instance.getHost(), instance.getPort(), instance.getUri());
-        }
-
-        return discoveryClient;
-    }
 }

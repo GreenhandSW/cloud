@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: order
   cloud:
     zookeeper:
       connect-string: ${zookeeper.host}:${zookeeper.port}

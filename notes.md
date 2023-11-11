@@ -38,7 +38,24 @@ server:
   enable-self-preservation: false
 ```
 
+### 3. 使用JPA实体类而不配置JPA数据源
 
+有如下几种方法：
+
+1. 如果确认本模块任何地方都不需要连接数据库，那可以直接在启动类上添加注解，排除JPA配置类
+
+   ```java
+   @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+   ```
+
+2. 如果只是某个类不需要连接数据库，那在该类上添加注解，排除JPA配置类：
+
+   ```java
+   @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
+           HibernateJpaAutoConfiguration.class})
+   public class OrderController extends BaseRestController<Payment, Long> {}
+   // 这里的Payment是一个JPA实体类
+   ```
 
 # Debug
 
@@ -218,6 +235,12 @@ canal连接的mysql服务的server-id不能为0[^ 11]，必须另外设置其他
 6. 然后docker logout再docker login就没有烦人的warning了
 ### 13. zookeeper服务报错：Cannot invoke "java.net.InetAddress.getHostAddress()" because the return value of "java.net.InetSocketAddress.getAddress()" is null
 不要惊慌，目前暂时没啥影响，仍然可以正常使用。暂时忽略。
+
+### 14. 服务启动报错：Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.
+
+这是因为本模块不需要连接数据库所以没有配置数据库连接，但是使用了JPA实体类默认需要数据库连接，因此可以在启动的时候让spring不配置数据库连接，方法见[3. 使用JPA实体类而不配置JPA数据源](# 3. 使用JPA实体类而不配置JPA数据源)。
+
+
 
 # 配置
 
