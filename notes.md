@@ -240,7 +240,28 @@ canal连接的mysql服务的server-id不能为0[^ 11]，必须另外设置其他
 
 这是因为本模块不需要连接数据库所以没有配置数据库连接，但是使用了JPA实体类默认需要数据库连接，因此可以在启动的时候让spring不配置数据库连接，方法见[3. 使用JPA实体类而不配置JPA数据源](# 3. 使用JPA实体类而不配置JPA数据源)。
 
+## Consul
 
+### 1. Consul UI的服务上面出现:x:，健康检查失败
+
+如图：
+
+<img src="notes.assets/consul服务健康检测异常.png" alt="image-20231111173810779" style="zoom:67%;" />
+
+在服务配置文件`application.yml`里设置hearbeat为`true`[^21]：
+
+```yaml
+spring:
+  cloud:
+    consul:
+      discovery:
+        heartbeat:
+          enabled: true
+```
+
+然后重启服务，就会发现正常了:white_check_mark:：
+
+<img src="notes.assets/consul服务健康检测正常.png" alt="image-20231111175121225" style="zoom:67%;" />
 
 # 配置
 
@@ -790,4 +811,8 @@ git push -f origin your_branch
 [^18]: [Git进阶系列 | 8. 用Reflog恢复丢失的提交](https://zhuanlan.zhihu.com/p/639564741)
 [^19]: [Changing git commit message after push (given that no one pulled from remote)](https://stackoverflow.com/a/8981216)
 [^20]: [How do I squash my last N commits together?](https://stackoverflow.com/a/61171280)
+[^21]: [consul上注册的服务出现红叉的解决方案](https://www.cnblogs.com/xiaocer/p/16625817.html)
 
+
+
+# 结尾（方便跳转）

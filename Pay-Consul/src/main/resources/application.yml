@@ -3,6 +3,11 @@ spring:
     name: pay
   profiles:
     active: single
+  cloud:
+    consul:
+      discovery:
+        heartbeat:
+          enabled: true
 druid:
   pay:
     master:

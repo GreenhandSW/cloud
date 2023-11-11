@@ -3,6 +3,11 @@ spring:
     name: order
   profiles:
     active: single
+  cloud:
+    consul:
+      discovery:
+        heartbeat:
+          enabled: true
 pay:
   name: pay
   address: localhost
