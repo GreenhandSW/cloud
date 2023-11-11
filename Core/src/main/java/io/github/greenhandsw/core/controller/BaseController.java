@@ -4,19 +4,23 @@ import io.github.greenhandsw.core.entity.CommonResult;
 import io.github.greenhandsw.core.service.BaseService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 public class BaseController<T, S extends BaseService<T, ID, R>, ID extends Serializable, R extends JpaRepository<T, ID>> {
 
     @Resource
     protected S s;
+
+    @Resource
+    private DiscoveryClient discoveryClient;
 
     @PostMapping("/add")
     public Object add(@RequestBody T entity){
@@ -47,5 +51,22 @@ public class BaseController<T, S extends BaseService<T, ID, R>, ID extends Seria
         T result = s.update(entity);
         log.info(">>>更新结果："+result);
         return new CommonResult<T>(200, "更新成功", entity);
+    }
+
+    @PostMapping("/discovery")
+    public Object discovery(){
+        // 获取服务列表的信息
+        List<String> services=discoveryClient.getServices();
+        for (String service : services) {
+            log.info("******service: " + service);
+        }
+        // 获取所有实例
+        List<ServiceInstance> instances=discoveryClient.getInstances("pay");
+        for (ServiceInstance instance :
+                instances) {
+            log.info("{}\t{}:{}/{}", instance.getServiceId(), instance.getHost(), instance.getPort(), instance.getUri());
+        }
+
+        return discoveryClient;
     }
 }
