@@ -17,7 +17,6 @@ for i in $(seq 0 $((master_nodes-1))); do
     rm -rf $node_dir
     mkdir -p "$node_dir"/{data,conf,log}
     ID=$((i+1)) envsubst < master-cnf.tmpl > $node_dir/conf/my.cnf
-#    touch "$node_dir"/conf/my.conf
 done
 
 # Create the slaves
@@ -26,13 +25,7 @@ for i in $(seq $((master_nodes)) $((slave_nodes+master_nodes-1))); do
     rm -rf $node_dir
     mkdir -p "$node_dir"/{data,conf,log}
     ID=$((i+1)) envsubst < slave-cnf.tmpl > $node_dir/conf/my.cnf
-#    touch "$node_dir"/conf/my.conf
 done
-
-## 创建canal文件
-#mkdir -p canal/{conf/example,logs}
-#cp canal.properties canal/conf/.
-#cp instance.properties canal/conf/example
 
 # 启动容器
 docker network create cloud
