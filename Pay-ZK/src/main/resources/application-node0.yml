@@ -3,6 +3,6 @@ spring:
     name: pay
   cloud:
     zookeeper:
-      connect-string: ${registers.node0.host}:${registers.node0.port}, ${registers.node1.host}:${registers.node1.port}, ${registers.node2.host}:${registers.node2.port}
+      connect-string: ${registers.node0.name}:${registers.node0.port}, ${registers.node1.name}:${registers.node1.port}, ${registers.node2.name}:${registers.node2.port}
 server:
   port: 10000

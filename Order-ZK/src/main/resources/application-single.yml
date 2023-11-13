@@ -1,7 +1,7 @@
 spring:
   cloud:
     zookeeper:
-      connect-string: ${register.host}:${register.port}
+      connect-string: ${register.name}:${register.port}
 server:
   port: 12000
 register:

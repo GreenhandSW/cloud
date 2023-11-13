@@ -69,7 +69,7 @@ server:
    		final ClientHttpRequestExecution execution) throws IOException {
        // 获取请求的URI
    	final URI originalUri = request.getURI();
-       // 从URI解析出主机地址，对于Eureka服务来说也就是服务名
+       // 从URI解析出主机地址，对于Eurek服务来说也就是服务名
    	String serviceName = originalUri.getHost();
    	Assert.state(serviceName != null, "Request URI does not contain a valid hostname: " + originalUri);
        // 生成请求，并根据服务名，调用LoadBalancerClient.execute()方法处理
@@ -102,7 +102,7 @@ server:
 4. 重载的execute()方法中通过`LoadBalancerRequest.apply()`向服务实例发起执行request的调用。
 
    ```java
-   @Override
+   host@Override
    public <T> T execute(String serviceId, ServiceInstance serviceInstance, LoadBalancerRequest<T> request)
    		throws IOException {
    	// 省略若干代码

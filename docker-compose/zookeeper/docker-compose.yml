@@ -5,8 +5,7 @@ services:
     hostname: zk0
     container_name: zk0
     ports:
-      - "14100:8080"
-      - "14000:2181"
+      - "13000:2181"
     networks:
       cloud:
     volumes:
@@ -22,8 +21,7 @@ services:
     hostname: zk1
     container_name: zk1
     ports:
-      - "14101:8080"
-      - "14001:2181"
+      - "13001:2181"
     networks:
       cloud:
     volumes:
@@ -39,8 +37,7 @@ services:
     hostname: zk2
     container_name: zk2
     ports:
-      - "14102:8080"
-      - "14002:2181"
+      - "13002:2181"
     networks:
       cloud:
     volumes:
