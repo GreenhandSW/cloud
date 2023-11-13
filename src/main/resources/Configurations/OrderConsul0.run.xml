@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OrderConsul0" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="consul">
+    <option name="ACTIVE_PROFILES" value="node0" />
+    <module name="Order-Consul" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.orderconsul.OrderConsulApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

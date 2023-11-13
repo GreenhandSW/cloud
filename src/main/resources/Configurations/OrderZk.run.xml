@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OrderZk" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="zookeeper-single">
+    <module name="Order-ZK" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.orderzk.OrderZkApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

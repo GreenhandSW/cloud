@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PayConsul2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="consul">
+    <option name="ACTIVE_PROFILES" value="node2" />
+    <module name="Pay-Consul" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.payconsul.PayConsulApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

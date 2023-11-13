@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="EurekaServer0" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="eureka">
+    <option name="ACTIVE_PROFILES" value="node0" />
+    <module name="Eureka-Server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.eurekaserver.EurekaServerApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

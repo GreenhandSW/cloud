@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OrderEureka0" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="eureka">
+    <option name="ACTIVE_PROFILES" value="node0" />
+    <module name="Order-Eureka" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.ordereureka.OrderEurekaApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
