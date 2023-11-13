@@ -36,7 +36,7 @@ public class BaseController<T, S extends BaseService<T, ID, R>, ID extends Seria
         if(result==null){
             return new CommonResult<T>(200, "查询失败，不存在id=%s的记录".formatted(id));
         }
-        return new CommonResult<T>(200, "插入成功", result);
+        return new CommonResult<T>(200, "查询成功", result);
     }
 
     @PostMapping("/delete")
