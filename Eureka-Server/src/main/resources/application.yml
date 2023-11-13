@@ -8,15 +8,16 @@ server:
 eureka:
   instance:
     hostname: localhost
-  server0:
-    name: server0
+registers:
+  node0:
+    name: register0
     host: localhost
     port: 13000
-  server1:
-    name: server1
+  node1:
+    name: register1
     host: localhost
     port: 13001
-  server2:
-    name: server2
+  node2:
+    name: register2
     host: localhost
     port: 13002

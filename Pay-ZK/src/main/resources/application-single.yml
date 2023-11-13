@@ -3,10 +3,10 @@ spring:
     name: pay
   cloud:
     zookeeper:
-      connect-string: ${zookeeper.host}:${zookeeper.port}
+      connect-string: ${register.host}:${register.port}
 server:
   port: 10000
-zookeeper:
-  name: zk0
+register:
+  name: register0
   host: localhost
-  port: 14000
+  port: 13000

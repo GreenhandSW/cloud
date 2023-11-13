@@ -26,17 +26,16 @@ druid:
       url: jdbc:mysql://localhost:3308/payment?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
       driver-class-name: com.mysql.cj.jdbc.Driver
 
-zookeepers:
-  zk0:
-    name: zk0
+registers:
+  node0:
+    name: register0
     host: localhost
-    port: 14000
-  zk1:
-    name: zk0
+    port: 13000
+  node1:
+    name: register1
     host: localhost
-    port: 14001
-  zk2:
-    name: zk0
+    port: 13001
+  node2:
+    name: register2
     host: localhost
-    port: 14002
-
+    port: 13002

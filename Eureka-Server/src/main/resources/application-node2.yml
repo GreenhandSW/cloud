@@ -1,0 +1,12 @@
+server:
+  port: 13002
+eureka:
+  instance:
+    hostname: ${registers.node2.name}
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    healthcheck:
+      enabled: true
+    service-url:
+      defaultZone: http://${registers.node0.name}:${registers.node0.port}/eureka/, http://${registers.node1.name}:${registers.node1.port}/eureka/

@@ -8,19 +8,19 @@ pay:
   address: localhost
   port: 10000
   prefix: pay
-zookeepers:
-  zk0:
-    name: zk0
+registers:
+  node0:
+    name: register0
     host: localhost
-    port: 14000
-  zk1:
-    name: zk0
+    port: 13000
+  node1:
+    name: register1
     host: localhost
-    port: 14001
-  zk2:
-    name: zk0
+    port: 13001
+  node2:
+    name: register2
     host: localhost
-    port: 14002
+    port: 13002
 # 暂时写成请求一个固定节点，后面看怎么扩展
 request:
   service:
