@@ -15,18 +15,18 @@ pay:
 
 registers:
   node0:
-    name: center0
+    name: register0
     host: localhost
     port: 13000
   node1:
-    name: center1
+    name: register1
     host: localhost
     port: 13001
   node2:
-    name: center2
+    name: register2
     host: localhost
     port: 13002
-# 暂时写成请求一个固定节点，后面看怎么扩展
+# @LoadBalanced注解允许通过服务名发起请求，从而实现负载均衡
 request:
   service:
-    url: http://${pay.address}:${pay.port}/${pay.prefix}
+    url: http://${pay.name}/${pay.prefix}

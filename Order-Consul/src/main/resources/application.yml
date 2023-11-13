@@ -17,4 +17,4 @@ pay:
 # 暂时写成请求一个固定节点，后面看怎么扩展
 request:
   service:
-    url: http://${pay.address}:${pay.port}/${pay.prefix}
+    url: http://${pay.name}/${pay.prefix}
