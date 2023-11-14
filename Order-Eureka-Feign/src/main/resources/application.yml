@@ -5,11 +5,13 @@ spring:
     active: single
   cloud:
     openfeign:
+#      circuitbreaker:
+#        enabled: true
       client:
         config:
           default:
-            connect-timeout: 2000
-            read-timeout: 2000
+#            connect-timeout: 2000
+#            read-timeout: 2000
             logger-level: basic
 
 pay:
@@ -38,3 +40,33 @@ request:
 logging:
   level:  # 可以直接指定对某个类下面的所有方法的日志监控级别
     io.github.greenhandsw.ordereurekafeign.service.PayFeignService: debug
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failureRateThreshold: 30 #失败请求百分⽐，超过这个⽐例，CircuitBreaker变为OPEN状态
+        slidingWindowSize: 10 #滑动窗⼝的⼤⼩，配置COUNT_BASED,表示10个请求，配置TIME_BASED表示10秒
+        minimumNumberOfCalls: 5 #最⼩请求个数，只有在滑动窗⼝内，请求个数达到这个个数，才会触发CircuitBreader对于断路器的判断
+        slidingWindowType: TIME_BASED #滑动窗⼝的类型
+        permittedNumberOfCallsInHalfOpenState: 3 #当CircuitBreaker处于HALF_OPEN状态的时候，允许通过的请求个数
+        automaticTransitionFromOpenToHalfOpenEnabled: true #设置true，表示⾃动从OPEN变成HALF_OPEN，即使没有请求过来
+        waitDurationInOpenState: 2s #从OPEN到HALF_OPEN状态需要等待的时间
+        recordExceptions: #异常名单
+          - java.lang.Exception
+    instances:
+      pay:
+        failureRateThreshold: 50
+        slowCallDurationThreshold: 2s #慢调⽤时间阈值，⾼于这个阈值的呼叫视为慢调⽤，并增加慢调⽤⽐例。
+        slowCallRateThreshold: 30 #慢调⽤百分⽐阈值，断路器把调⽤时间⼤于slowCallDurationThreshold，视为慢调⽤，当慢调⽤⽐例⼤于阈值，断路器打开，并进⾏服务降级
+        slidingWindowSize: 10
+        slidingWindowType: TIME_BASED
+        minimumNumberOfCalls: 2
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 2s #从OPEN到HALF_OPEN状态需要等待的时间
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 2s
+        cancelRunningFuture: true

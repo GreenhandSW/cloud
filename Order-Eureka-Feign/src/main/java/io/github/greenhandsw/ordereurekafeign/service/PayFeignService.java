@@ -14,5 +14,5 @@ public interface PayFeignService {
     CommonResult<Payment> get(@RequestBody Long id);
 
     @PostMapping("/timeout")
-    CommonResult<String> timeout();
+    CommonResult<String> timeout(@RequestBody Long sleepMilliseconds);
 }
