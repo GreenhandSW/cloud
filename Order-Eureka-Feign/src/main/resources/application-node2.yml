@@ -1,0 +1,11 @@
+server:
+  port: 12002
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: order${server.port}
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${registers.node0.name}:${registers.node0.port}/eureka/, http://${registers.node1.name}:${registers.node1.port}/eureka/, http://${registers.node2.name}:${registers.node2.port}/eureka/

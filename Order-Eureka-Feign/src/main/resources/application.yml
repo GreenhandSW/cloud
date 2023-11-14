@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: order
+  profiles:
+    active: single
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 2000
+            read-timeout: 2000
+            logger-level: basic
+
+pay:
+  name: pay
+  prefix: pay
+order:
+  name: order
+  prefix: customer/order
+registers:
+  node0:
+    name: register0
+    host: localhost
+    port: 13000
+  node1:
+    name: register1
+    host: localhost
+    port: 13001
+  node2:
+    name: register2
+    host: localhost
+    port: 13002
+# @LoadBalanced注解允许通过服务名发起请求，从而实现负载均衡
+request:
+  service:
+    url: http://${pay.name}/${pay.prefix}
+logging:
+  level:  # 可以直接指定对某个类下面的所有方法的日志监控级别
+    io.github.greenhandsw.ordereurekafeign.service.PayFeignService: debug

@@ -39,3 +39,6 @@ Content-Type: application/json
 ### zookeeper用户查看
 POST http://{{host}}:{{orderPort}}/{{order}}/zookeeper
 Content-Type: application/json
+
+### OpenFeign 超时测试
+POST http://{{host}}:{{orderPort}}/{{order}}/timeout

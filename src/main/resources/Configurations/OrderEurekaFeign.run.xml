@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OrderEurekaFeign" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="eureka-single">
+    <module name="Order-Eureka-Feign" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.ordereurekafeign.OrderEurekaFeignApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
