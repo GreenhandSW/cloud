@@ -34,3 +34,10 @@ registers:
     name: register2
     host: localhost
     port: 13002
+server:
+  tomcat:
+    threads:
+      min-spare: 5
+      max: 5
+    max-connections: 10
+    accept-count: 10

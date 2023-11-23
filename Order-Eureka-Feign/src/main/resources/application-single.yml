@@ -9,7 +9,7 @@ eureka:
     hostname: localhost
     instance-id: order${server.port}
   client:
-    register-with-eureka: false
+    register-with-eureka: true
     fetch-registry: true
     serviceUrl:
       defaultZone: http://${register.name}:${register.port}/eureka/

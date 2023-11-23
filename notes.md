@@ -212,6 +212,8 @@ server:
 
 ### 5. `@LoadBalancer`怎样实现负载均衡
 
+#### 5.1. 源码
+
 1. [上一个问题](# 4. `@LoadBalanced`为什么可以直接通过服务名而非ip发起请求？)第三步提到了`BlockingLoadBalancerClient.execute()`方法，在这个方法里，调用了`choose()`方法，其逻辑如下：
 
    ```java
@@ -282,6 +284,49 @@ server:
       	return new DefaultResponse(instance);
       }
       ```
+
+#### 5.2. 一个佐证
+
+Feign服务调用带LoadBalanced注解的服务时，如果在调用时没有提供服务的具体地址，只给出了一个服务名，那么会输出如下内容，也就是会使用负载均衡根据服务名选择一个对应的服务实例。
+
+> o.s.c.openfeign.FeignClientFactoryBean   : For 'pay' URL not provided. Will try picking an instance via load-balancing.
+
+### 6. CircuitBreaker如何实现熔断？
+
+#### 6.1. 如何测试熔断
+
+1. 配置文件里加上如下配置信息：
+
+   ```yaml
+   resilience4j:
+     circuitbreaker:
+       instances:
+         pay:	# 具体的断路器名字
+                 failureRateThreshold: 30 #失败请求百分⽐，超过这个⽐例，CircuitBreaker变为OPEN状态
+                 slidingWindowSize: 10 #滑动窗⼝的⼤⼩，配置COUNT_BASED,表示10个请求，配置TIME_BASED表示10秒
+                 minimumNumberOfCalls: 5 #最⼩请求个数，只有在滑动窗⼝内，请求个数达到这个个数，才会触发CircuitBreader对于断路器的判断
+                 slidingWindowType: TIME_BASED #滑动窗⼝的类型
+                 permittedNumberOfCallsInHalfOpenState: 3 #当CircuitBreaker处于HALF_OPEN状态的时候，允许通过的请求个数
+                 automaticTransitionFromOpenToHalfOpenEnabled: true #设置true，表示⾃动从OPEN变成HALF_OPEN，即使没有请求过来
+                 waitDurationInOpenState: 2s #从OPEN到HALF_OPEN状态需要等待的时间
+                 recordExceptions: #异常名单
+                   - java.lang.Exception
+   ```
+
+2. 要熔断的http方法加如下注解：
+
+   ```java
+   @CircuitBreaker(name = "pay", fallbackMethod = "fallb")
+   ```
+
+3. 实现对应的fallback方法：
+
+   ```java
+   ```
+
+   
+
+4. d
 
 # Debug
 
@@ -479,6 +524,40 @@ public RestTemplate restTemplate() {
 ```
 
 - [ ] 阅读`LoadBalancerClient`及其相关源码。
+
+### 16. Resillience4j无法使用默认的配置
+
+参考了网上有的答案，设置了一个`default`配置，然后再对不同名称的各种断路器、限时器做特别配置如下：
+
+```yml
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        ...省略
+      pay:
+        ...省略
+  timelimiter:
+    instances:
+      default:
+        ...省略
+      pay:
+        ...省略
+```
+
+但实际上发现对其他没有配置的断路器、限时器，`default`配置根本不起作用。
+
+查看代码发现，对于`default`配置，无论是断路器、限时器等等，其注册的代码逻辑大体都如下：
+
+```java
+// DEFAULT_CONFIG是"default"配置的名称
+public InMemoryTimeLimiterRegistry(Map<String, TimeLimiterConfig> configs) {
+    this(configs.getOrDefault(DEFAULT_CONFIG, TimeLimiterConfig.ofDefaults()));
+    this.configurations.putAll(configs);
+}
+```
+
+可以看到注册时如果没有找到对应名称的配置，直接使用默认配置。但默认配置并非从配置文件读取，而是直接采用代码中设定的参数。所以在项目的`applications.yml`中配置这个`default`配置没有什么作用，还是需要针对每个不同名称的工具做具体配置。
 
 ## Consul
 
@@ -1025,7 +1104,11 @@ git commit -m "new commit message"
 git push -f origin your_branch
 ```
 
+## JMeter
 
+### 1. 发送POST请求需要设置请求头
+
+GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添加一个Key=`Content-Type`，Value=`application/json`的值，这样默认的请求格式才会变成json[^22]。
 
 # 参考资料
 
@@ -1052,6 +1135,7 @@ git push -f origin your_branch
 [^19]: [Changing git commit message after push (given that no one pulled from remote)](https://stackoverflow.com/a/8981216)
 [^20]: [How do I squash my last N commits together?](https://stackoverflow.com/a/61171280)
 [^21]: [consul上注册的服务出现红叉的解决方案](https://www.cnblogs.com/xiaocer/p/16625817.html)
+[^22]: [利用Jmeter 实现Json格式接口测试](https://www.cnblogs.com/luweiwei/p/5320805.html)
 
 
 

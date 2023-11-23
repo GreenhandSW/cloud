@@ -8,6 +8,8 @@ server:
 eureka:
   instance:
     hostname: localhost
+  server:
+    enable-self-preservation: false
 registers:
   node0:
     name: register0

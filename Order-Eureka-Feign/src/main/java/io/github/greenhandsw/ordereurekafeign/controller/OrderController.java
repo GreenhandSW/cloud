@@ -4,7 +4,9 @@ import io.github.greenhandsw.core.controller.BaseRestController;
 import io.github.greenhandsw.core.entity.CommonResult;
 import io.github.greenhandsw.core.entity.Payment;
 import io.github.greenhandsw.ordereurekafeign.service.PayFeignService;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +36,9 @@ public class OrderController extends BaseRestController<Payment, Long> {
     }
 
     @PostMapping("/timeout")
-    @CircuitBreaker(name = "circuitbreaker", fallbackMethod = "fail")
-    @TimeLimiter(name = "timelimiter", fallbackMethod = "timeout")
+    @RateLimiter(name = "pay")
+    @CircuitBreaker(name = "pay", fallbackMethod = "fallback")
+    @TimeLimiter(name = "pay", fallbackMethod = "fallback")
     public CompletableFuture<CommonResult<String>> timeoutCall(@RequestBody Long sleepMilliseconds){
         long begin=System.currentTimeMillis();
         CompletableFuture<CommonResult<String>> result=CompletableFuture.supplyAsync(()->service.timeout(sleepMilliseconds));
@@ -44,12 +47,12 @@ public class OrderController extends BaseRestController<Payment, Long> {
         return result;
     }
 
-    public CompletableFuture<CommonResult<String>> timeout(TimeoutException e){
+    public CompletableFuture<CommonResult<String>> fallback(@RequestBody Long sleepMilliseconds, TimeoutException e){
         log.info(e.toString());
         return CompletableFuture.completedFuture(new CommonResult<>(500, "超时了", "timeout"));
     }
 
-    public CompletableFuture<CommonResult<String>> fail(TimeoutException e){
+    public CompletableFuture<CommonResult<String>> fallback(@RequestBody Long sleepMilliseconds, CallNotPermittedException e){
         log.info(e.toString());
         return CompletableFuture.completedFuture(new CommonResult<>(500, "挂多了", "fail"));
     }

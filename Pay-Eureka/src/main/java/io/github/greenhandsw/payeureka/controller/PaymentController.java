@@ -12,17 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController("pay")
 @RequestMapping("/pay")
 public class PaymentController extends BaseController<Payment, PaymentService, Long, PaymentRepository> {
+    private final AtomicInteger requestCount=new AtomicInteger(0);
     @RequestMapping("/timeout")
     public CommonResult<String> timeout(@RequestBody Long sleepMilliseconds) throws InterruptedException {
         assert 0<=sleepMilliseconds && sleepMilliseconds<=10000;
         log.info("sleep for {} ms", sleepMilliseconds);
         Thread.sleep(sleepMilliseconds);
-        doLog("超时", null, null);
-        return new CommonResult<>(200, String.format("%s 睡眠时间：%s", registration.getInstanceId(), sleepMilliseconds), "没有超时");
+        int count=requestCount.incrementAndGet();
+        doLog(String.format("%s 睡眠时间：%s 调用次数：%d", registration.getInstanceId(), sleepMilliseconds, count), null, null);
+        return new CommonResult<>(200, String.format("%s 睡眠时间：%s 调用次数：%d", registration.getInstanceId(), sleepMilliseconds, count), "没有超时");
     }
 }

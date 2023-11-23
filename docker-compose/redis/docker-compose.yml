@@ -23,8 +23,8 @@ services:
       redis:
         ipv4_address: 172.200.0.11
     ports:
-      - "10000:6379"
-      - "20000:16379"
+      - "15000:6379"
+      - "25000:16379"
     volumes: # 数据卷，目录挂载
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node0/conf:/etc/redis
@@ -37,8 +37,8 @@ services:
       redis:
         ipv4_address: 172.200.0.12
     ports:
-      - "10001:6379"
-      - "20001:16379"
+      - "15001:6379"
+      - "25001:16379"
     volumes:
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node1/conf:/etc/redis
@@ -51,8 +51,8 @@ services:
       redis:
         ipv4_address: 172.200.0.13
     ports:
-      - "10002:6379"
-      - "20002:16379"
+      - "15002:6379"
+      - "25002:16379"
     volumes:
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node2/conf:/etc/redis
@@ -65,8 +65,8 @@ services:
       redis:
         ipv4_address: 172.200.0.14
     ports:
-      - "10003:6379"
-      - "20003:16379"
+      - "15003:6379"
+      - "25003:16379"
     volumes:
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node3/conf:/etc/redis
@@ -83,8 +83,8 @@ services:
       redis:
         ipv4_address: 172.200.0.15
     ports:
-      - "10004:6379"
-      - "20004:16379"
+      - "15004:6379"
+      - "25004:16379"
     volumes:
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node4/conf:/etc/redis
@@ -101,8 +101,8 @@ services:
       redis:
         ipv4_address: 172.200.0.16
     ports:
-      - "10005:6379"
-      - "20005:16379"
+      - "15005:6379"
+      - "25005:16379"
     volumes:
       - ./etc_rc.local:/etc/rc.local
       - ./redis-node5/conf:/etc/redis
