@@ -11,6 +11,7 @@
 # changes to the binary log between backups.
 server_id=${ID} # 配置 MySQL replaction 需要定义，不要和 canal 的 slaveId 重复
 
+relay-log=mysql-relay
 #
 # Remove leading # to set options mainly useful for reporting servers.
 # The server defaults are faster for transactions and fast SELECTs.

@@ -8,7 +8,7 @@ services:
       - ./master0/conf/my.cnf:/etc/my.cnf
       - ./master0/log:/var/log/mysql
       - ./master0/data:/var/lib/mysql
-      - ./payment.sql:/docker-entrypoint-initdb.d/payment.sql
+      - ./master.sql:/docker-entrypoint-initdb.d/master.sql
     environment:
       MYSQL_ROOT_PASSWORD: cloud
       TZ: Asia/Shanghai
@@ -22,7 +22,7 @@ services:
       - ./slave1/conf/my.cnf:/etc/my.cnf
       - ./slave1/log:/var/log/mysql
       - ./slave1/data:/var/lib/mysql
-      - ./payment.sql:/docker-entrypoint-initdb.d/payment.sql
+      - ./slave.sql:/docker-entrypoint-initdb.d/slave.sql
     environment:
       MYSQL_ROOT_PASSWORD: cloud
       TZ: Asia/Shanghai
@@ -36,7 +36,7 @@ services:
       - ./slave2/conf/my.cnf:/etc/my.cnf
       - ./slave2/log:/var/log/mysql
       - ./slave2/data:/var/lib/mysql
-      - ./payment.sql:/docker-entrypoint-initdb.d/payment.sql
+      - ./slave.sql:/docker-entrypoint-initdb.d/slave.sql
     environment:
       MYSQL_ROOT_PASSWORD: cloud
       TZ: Asia/Shanghai

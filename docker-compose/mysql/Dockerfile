@@ -6,5 +6,5 @@ VOLUME /var/lib/mysql
 VOLUME /var/log/mysql
 
 ENV MYSQL_ROOT_PASSWORD cloud
-ADD payment.sql /docker-entrypoint-initdb.d
+ADD master.sql /docker-entrypoint-initdb.d
 EXPOSE 3306
