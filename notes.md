@@ -987,6 +987,101 @@ spring:
    docker build -t my-canal/latest .
    ```
 
+## kafka
+
+### 常用kafka命令
+
+查看consumer消费的记录[^25]：
+
+```sh
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --topic example
+```
+
+### 单个kafka配置
+
+1. `docker-compose.yml`文件[^23][^24]：
+
+   ```yml
+   version: '2'
+   services:
+     kafka:
+       image: bitnami/kafka
+       hostname: kafka
+       container_name: kafka
+       networks:
+         cloud:
+       ports:
+         - "9092:9092" # 这个端口是让canal连接的
+         - "9094:9094"	# 这个端口是让外部应用连接的
+       environment:
+         # KRaft settings
+         - KAFKA_ENABLE_KRAFT=yes
+         - KAFKA_CFG_NODE_ID=0
+         - KAFKA_CFG_PROCESS_ROLES=controller,broker
+         - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@localhost:9093
+         # Listeners
+         - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+         - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+         - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+         - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+         - ALLOW_PLAINTEXT_LISTENER=yes
+       volumes:
+         - kafka:/bitnami/kafka
+   networks:
+     cloud:
+       external: true
+   # 由于kafka镜像不支持直接映射，只能添加卷
+   volumes:
+     kafka:
+       driver: local
+       driver_opts:
+         type: none
+         o: bind
+         device: ./kafka
+   ```
+
+   配套一个简单的启动脚本：
+
+   ```sh
+   #!/bin/bash
+   docker compose down
+   node_dir="kafka"
+   sudo rm -rf "$node_dir"
+   mkdir -p "$node_dir"
+   docker compose -f docker-compose.yml -p kafka-single up -d
+   ```
+
+2. canal中kafka的配置：
+
+   ```properties
+   # 不知道为啥但必须按这个端口配置，9094有问题
+   # 其他配置按默认的来
+   kafka.bootstrap.servers = kafka:9092
+   ```
+
+3. spring依赖：
+
+   ```xml
+   <dependency>
+       <groupId>org.springframework.kafka</groupId>
+       <artifactId>spring-kafka</artifactId>
+   </dependency>
+   ```
+
+4. `application.yml`配置
+
+   ```yml
+   spring:
+     kafka:
+       # 这个必须连接kafka的EXTERNAL对应的端口
+       # host事先在`/etc/hosts`文件中配置好，或者直接用localhost
+       bootstrap-servers: kafka:9094
+       consumer:
+         group-id: example
+         key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+         value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+   ```
+
 ## Git
 
 ### Your push would publish a private email address
@@ -995,7 +1090,7 @@ spring:
 
 首先从gitee或github的邮箱设置里找到为你随机生成的一个邮箱地址，然后把本地设置的邮箱更改为这个邮箱
 
-```git
+```sh
 # random_public_mail@email.com一定不能填成私有邮箱
 git config --local user.name "username"
 git config --local user.email random_public_mail@email.com
@@ -1136,6 +1231,13 @@ GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添
 [^20]: [How do I squash my last N commits together?](https://stackoverflow.com/a/61171280)
 [^21]: [consul上注册的服务出现红叉的解决方案](https://www.cnblogs.com/xiaocer/p/16625817.html)
 [^22]: [利用Jmeter 实现Json格式接口测试](https://www.cnblogs.com/luweiwei/p/5320805.html)
+[^23]: [Accessing Apache Kafka with internal and external clients ](https://github.com/bitnami/containers/tree/main/bitnami/kafka#accessing-apache-kafka-with-internal-and-external-clients)
+
+[^24]: [Kafka 的 Docker 部署](https://zhuanlan.zhihu.com/p/586005021)
+
+[^25]: [Kafka常用命令之kafka-console-consumer.sh](https://blog.csdn.net/qq_29116427/article/details/80206125)
+
+
 
 
 

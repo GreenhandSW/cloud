@@ -24,7 +24,7 @@ for i in $(seq 0 $((num_nodes-1))); do
     rm -rf "$node_dir"
     mkdir -p "$node_dir"/{data,conf}
     # redis-node.tmpl是模板文件，用于把同一行的这些变量都填入进去再输出到一个文件里。
-    PORT=$((10000 + i)) BUS_PORT=$((PORT + 10000)) ANNOUNCE_IP="172.200.0.1" envsubst < redis-node.tmpl > "$node_dir"/conf/redis.conf
+    PORT=$((15000 + i)) BUS_PORT=$((PORT + 10000)) ANNOUNCE_IP="172.200.0.1" envsubst < redis-node.tmpl > "$node_dir"/conf/redis.conf
 #    touch "$node_dir"/conf/my.conf
 done
 

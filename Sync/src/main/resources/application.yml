@@ -1,0 +1,22 @@
+server:
+  port: 11000
+spring:
+  data:
+    redis:
+      host: localhost
+      timeout: 10000ms # 连接超时时间（记得添加单位，Duration）
+#      database: 0 # Redis默认情况下有16个分片，这里配置具体使用的分片 (默认0)
+#      port: 15000 # Redis服务器连接端口
+      cluster:
+        nodes: 172.200.0.1:15000,172.200.0.1:15001,172.200.0.1:15002,172.200.0.1:15003,172.200.0.1:15004,172.200.0.1:15005
+      password: cloud
+  kafka:
+    bootstrap-servers: kafka:9094
+    consumer:
+      group-id: example
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#logging:
+#  level:
+##    io.github.greenhandsw.sync.SyncApplication: debug
+#    root: debug

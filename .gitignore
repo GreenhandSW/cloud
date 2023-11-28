@@ -51,3 +51,7 @@ docker-compose/redis/*/
 
 ### Consul ###
 docker-compose/consul/*/
+
+### Kafka ###
+docker-compose/kafka/kafka*
+docker-compose/kafka-single/kafka
