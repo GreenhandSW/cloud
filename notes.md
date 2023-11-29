@@ -1082,6 +1082,41 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --t
          value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
    ```
 
+## Gateway
+
+### predicates
+
+### 时间：
+
+时间相关的谓词可以设定接口的开放时间：
+
+```yml
+# 在指定时间前
+- Before=2023-11-29T18:28:59.999+08:00[Asia/Shanghai]
+# 在指定时间后
+- After=2023-11-29T18:28:59.999+08:00[Asia/Shanghai]
+# 在指定时间之间
+- Between=2023-11-29T18:28:59.999+08:00[Asia/Shanghai],2023-11-29T18:28:59.999+08:00[Asia/Shanghai]
+```
+
+不在时间范围内直接返回404。
+
+### Cookie
+
+Cookie谓词要求必须携带指定的Cookie
+
+```yml
+- Cookie=username,GreenhandSW
+```
+
+测试请求的时候要加上参数
+
+```
+Cookie: username=GreenhandSW
+```
+
+没有携带指定的Cookie也直接返回404。
+
 ## Git
 
 ### Your push would publish a private email address
@@ -1214,14 +1249,12 @@ GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添
 [^5]: [docker-compose部署redis cluster集群及常用集群命令](https://blog.csdn.net/lihongbao80/article/details/126176403)
 [^6]: [Docker Compose 搭建 Redis Cluster 集群环境 ](https://www.cnblogs.com/mrhelloworld/p/docker14.html)
 [^7]: [Spring AOP aspect used in a separate module](https://stackoverflow.com/questions/7797824/spring-aop-aspect-used-in-a-separate-module)
-
 [^8]: [springboot整合jpa启动类报错Not a managed type class](https://www.cnblogs.com/javaxubo/p/16558638.html)
 [^9]: [No beans of 'RestTemplate' type found](https://blog.csdn.net/tongkongyu/article/details/123817121)
 [^10]: [docker网络模式](https://zhuanlan.zhihu.com/p/640948037)
 [^11]: [PositionNotFoundException: can't find start position for example #3243 ](https://github.com/alibaba/canal/issues/3243)
 [^12]: [Java订阅Binlog的几种方式 ](https://jasonkayzk.github.io/2023/03/26/Java%E8%AE%A2%E9%98%85Binlog%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/)
 [^13]: 2015年的issue：[CLUSTER MEET doesn't allow hostname to be used #2410 ](https://github.com/redis/redis/issues/2410)，不过到2023年还没解决，还有人在提：[[NEW] Cluster Meet should support hostnames instead of IPs #12508 ](https://github.com/redis/redis/issues/12508)。
-
 [^14]: [error: GH007: Your push would publish a private email address.](https://www.cnblogs.com/ramlife/p/16874362.html)
 [^15]: [How to change the author of multiple Git commits ](https://www.ankursheel.com/blog/change-author-multiple-git-commits)
 [^16]: [How do I change the author and committer name/email for multiple commits?](https://stackoverflow.com/questions/750172/how-do-i-change-the-author-and-committer-name-email-for-multiple-commits#comment46078300_1320317)注意看的是评论，不是评论上面的回答
@@ -1232,11 +1265,8 @@ GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添
 [^21]: [consul上注册的服务出现红叉的解决方案](https://www.cnblogs.com/xiaocer/p/16625817.html)
 [^22]: [利用Jmeter 实现Json格式接口测试](https://www.cnblogs.com/luweiwei/p/5320805.html)
 [^23]: [Accessing Apache Kafka with internal and external clients ](https://github.com/bitnami/containers/tree/main/bitnami/kafka#accessing-apache-kafka-with-internal-and-external-clients)
-
 [^24]: [Kafka 的 Docker 部署](https://zhuanlan.zhihu.com/p/586005021)
-
 [^25]: [Kafka常用命令之kafka-console-consumer.sh](https://blog.csdn.net/qq_29116427/article/details/80206125)
-
 
 
 

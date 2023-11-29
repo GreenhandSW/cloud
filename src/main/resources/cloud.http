@@ -45,3 +45,23 @@ POST http://{{host}}:{{orderPort}}/{{order}}/timeout
 Content-Type: application/json
 
 2500
+
+### Gateway pay 测试
+POST http://{{host}}:{{gatewayPort}}/{{pay}}/get
+Content-Type: application/json
+
+998
+
+### Gateway order 测试
+POST http://{{host}}:{{gatewayPort}}/{{order}}/get
+Content-Type: application/json
+# Cookie Predicate测试
+Cookie: username=GreenhandSW
+
+999
+
+### Gateway 外网 百度 测试
+GET http://{{host}}:{{gatewayPort}}/search?wd=谷歌
+
+### 百度 测试
+GET http://www.baidu.com/s?wd=学习

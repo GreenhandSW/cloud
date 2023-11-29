@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GatewayEureka" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="eureka-single">
+    <option name="ACTIVE_PROFILES" value="single" />
+    <module name="Gateway-Eureka" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.gatewayeureka.GatewayEurekaApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
