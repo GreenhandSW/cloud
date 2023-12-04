@@ -1,5 +1,5 @@
 # 介绍
-个人针对[spring cloud微服务项目](https://www.bilibili.com/video/BV18E411x7eT)的学习。参考了[**小楊同学的笔记本**的学习笔记](https://blog.csdn.net/qq_36903261/category_10087946.html)。
+个人针对[spring cloud微服务项目](https://www.bilibili.com/video/BV18E411x7eT)的学习。参考了[**小楊同学的笔记本**的学习笔记](https://blog.csdn.net/qq_36903261/category_10087946.html)。笔记内容主要记录在docs目录下，主页为[index.md](./docs/readme.md)。
 # 使用方法
 ## 特殊
 由于本项目用gitignore排除掉了几乎所有IDE的设置信息，因此需要：

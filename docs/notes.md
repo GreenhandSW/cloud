@@ -328,6 +328,56 @@ Feign服务调用带LoadBalanced注解的服务时，如果在调用时没有提
 
 4. d
 
+### 7. 消息队列
+
+```mermaid
+graph LR
+Provider[生产者] --> |生产消息| Broker(Broker)
+Broker --> |确认收到| Provider
+Broker --> |消费消息| Consumer[消费者]
+Consumer --> |消费完成| Broker
+```
+
+#### 常见问题
+
+##### 1. 消息如何不丢失？
+
+生产者：发送后需要处理Broker的响应，对于失败需要重试发送或报警、记录等
+
+Broker：存储时需要将消息刷盘后再给生产者返回响应，如果有多副本机制还需要写入多个副本后再响应
+
+消费者：执行完成后再返回响应
+
+##### 2. 重复消费的解决方法
+
+重复消费不可避免，只能确保业务执行的幂等。
+
+方法：
+
+1. 数据库唯一键约束
+2. 前置条件判断
+3. 记录关键key，或者用全局唯一id
+
+##### 3. 推拉设计
+
+生产者到Broker一般采用推送模式，即生产者将消息推送给Broker。否则生产者需要在本地保存消息等待拉取，不利于保证消息的可靠性。
+
+Broker到消费者：
+
+- 推送模式：Broker推送消息到消费者。
+  - 应用：ActiveMQ
+  - 优点：消息实时性高、消费者设计简单
+  - 缺点：必须从Broker端控制推送速率进而才能适应消费速率。而且不同消费者消费速率不一样进一步增加了控制推送速率的难度
+  - 使用场景：消息量小、实时性要求高、消费能力强
+- 拉取模式：消费者主动向Broker请求拉取消息。
+  - 应用：RocketMQ, Kafka
+  - 优点：便于消费者根据自身情况控制消费速率、可以批量拉取、Broker无需考虑消费速率问题。
+  - 缺点：需要消费者调整拉取速率（拉取频率太高会影响Broker，太低会导致消息延迟）、在长时间没有消息的时候会导致忙请求空转。
+
+拉取模式的优化：
+
+
+
 # Debug
 
 ### 1. Provides transitive vulnerable dependency maven:org.yaml:snakeyaml:1.33
@@ -1243,29 +1293,53 @@ GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添
 # 参考资料
 
 [^1]: [minikube start](https://minikube.sigs.k8s.io/docs/start/)
+
 [^2]: [The Ultimate Guide to Deploying and Managing Redis on Kubernetes](https://www.dragonflydb.io/guides/redis-kubernetes)
+
 [^3]: [Docker Compose安装redis-cluster集群 ](https://ihui.ink/post/docker/redis-cluster-docker-compose/)
+
 [^4]: [使用 Docker Compose 建立 Redis Cluster ](https://blog.yowko.com/docker-compose-redis-cluster/)
+
 [^5]: [docker-compose部署redis cluster集群及常用集群命令](https://blog.csdn.net/lihongbao80/article/details/126176403)
+
 [^6]: [Docker Compose 搭建 Redis Cluster 集群环境 ](https://www.cnblogs.com/mrhelloworld/p/docker14.html)
+
 [^7]: [Spring AOP aspect used in a separate module](https://stackoverflow.com/questions/7797824/spring-aop-aspect-used-in-a-separate-module)
+
 [^8]: [springboot整合jpa启动类报错Not a managed type class](https://www.cnblogs.com/javaxubo/p/16558638.html)
+
 [^9]: [No beans of 'RestTemplate' type found](https://blog.csdn.net/tongkongyu/article/details/123817121)
+
 [^10]: [docker网络模式](https://zhuanlan.zhihu.com/p/640948037)
+
 [^11]: [PositionNotFoundException: can't find start position for example #3243 ](https://github.com/alibaba/canal/issues/3243)
+
 [^12]: [Java订阅Binlog的几种方式 ](https://jasonkayzk.github.io/2023/03/26/Java%E8%AE%A2%E9%98%85Binlog%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/)
+
 [^13]: 2015年的issue：[CLUSTER MEET doesn't allow hostname to be used #2410 ](https://github.com/redis/redis/issues/2410)，不过到2023年还没解决，还有人在提：[[NEW] Cluster Meet should support hostnames instead of IPs #12508 ](https://github.com/redis/redis/issues/12508)。
+
 [^14]: [error: GH007: Your push would publish a private email address.](https://www.cnblogs.com/ramlife/p/16874362.html)
+
 [^15]: [How to change the author of multiple Git commits ](https://www.ankursheel.com/blog/change-author-multiple-git-commits)
+
 [^16]: [How do I change the author and committer name/email for multiple commits?](https://stackoverflow.com/questions/750172/how-do-i-change-the-author-and-committer-name-email-for-multiple-commits#comment46078300_1320317)注意看的是评论，不是评论上面的回答
+
 [^17]: [git配置ssh登陆后，却一直提示要输入密码？](https://www.zhihu.com/question/55865892/answer/2139046618)
-[^18]: [Git进阶系列 | 8. 用Reflog恢复丢失的提交](https://zhuanlan.zhihu.com/p/639564741)
+
+[^18]: [用Reflog恢复丢失的提交](https://zhuanlan.zhihu.com/p/639564741)
+
 [^19]: [Changing git commit message after push (given that no one pulled from remote)](https://stackoverflow.com/a/8981216)
+
 [^20]: [How do I squash my last N commits together?](https://stackoverflow.com/a/61171280)
+
 [^21]: [consul上注册的服务出现红叉的解决方案](https://www.cnblogs.com/xiaocer/p/16625817.html)
+
 [^22]: [利用Jmeter 实现Json格式接口测试](https://www.cnblogs.com/luweiwei/p/5320805.html)
+
 [^23]: [Accessing Apache Kafka with internal and external clients ](https://github.com/bitnami/containers/tree/main/bitnami/kafka#accessing-apache-kafka-with-internal-and-external-clients)
+
 [^24]: [Kafka 的 Docker 部署](https://zhuanlan.zhihu.com/p/586005021)
+
 [^25]: [Kafka常用命令之kafka-console-consumer.sh](https://blog.csdn.net/qq_29116427/article/details/80206125)
 
 
