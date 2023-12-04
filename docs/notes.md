@@ -1316,7 +1316,7 @@ GET可以省略，但POST一定要添加一个HTTP信息头管理器，并且添
 
 [^12]: [Java订阅Binlog的几种方式 ](https://jasonkayzk.github.io/2023/03/26/Java%E8%AE%A2%E9%98%85Binlog%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/)
 
-[^13]: 2015年的issue：[CLUSTER MEET doesn't allow hostname to be used #2410 ](https://github.com/redis/redis/issues/2410)，不过到2023年还没解决，还有人在提：[[NEW] Cluster Meet should support hostnames instead of IPs #12508 ](https://github.com/redis/redis/issues/12508)。
+[^13]: 2015年的issue：[CLUSTER MEET doesn't allow hostname to be used #2410 ](https://github.com/redis/redis/issues/2410)，不过到2023年还没解决，还有人在提：[\[NEW\] Cluster Meet should support hostnames instead of IPs #12508 ](https://github.com/redis/redis/issues/12508)。
 
 [^14]: [error: GH007: Your push would publish a private email address.](https://www.cnblogs.com/ramlife/p/16874362.html)
 
