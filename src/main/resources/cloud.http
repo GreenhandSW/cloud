@@ -60,6 +60,16 @@ Cookie: username=GreenhandSW
 
 999
 
+### Gateway order 存入 测试
+POST http://{{host}}:{{gatewayPort}}/{{order}}/add
+Content-Type: application/json
+
+{
+"id":996,
+"serial": "不知道"
+}
+
+
 ### Gateway 外网 百度 测试
 GET http://{{host}}:{{gatewayPort}}/search?wd=谷歌
 

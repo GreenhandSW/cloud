@@ -10,7 +10,7 @@ spring:
           uri: lb://${order.name}
           predicates:
             - Path=${order.prefix}/**
-            - Cookie=username,GreenhandSW
+#            - Cookie=username,GreenhandSW
         - id: search
           uri: http://www.baidu.com
           predicates:
