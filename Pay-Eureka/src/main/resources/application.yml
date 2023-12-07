@@ -3,6 +3,11 @@ spring:
     name: pay
   profiles:
     active: single
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    show-sql: true
 druid:
   pay:
     master:
@@ -41,3 +46,6 @@ server:
       max: 5
     max-connections: 10
     accept-count: 10
+#logging:
+#  level:
+#    root: trace
