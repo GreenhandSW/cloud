@@ -99,6 +99,8 @@ server:
 
 # Debug
 
+## Spring
+
 ### 1. Provides transitive vulnerable dependency maven:org.yaml:snakeyaml:1.33
 
 构建springboot项目时，`spring-boot-starter`依赖一直提示这个错误，于是在`dependencies`中添加如下依赖，把`snankeyaml`版本升级。
@@ -136,17 +138,11 @@ server:
    @Import(DataSourceInterceptor.class)
    ```
 
-### 3. canal连接失败
-
-目前canal-server一直无法连接到数据库，暂未解决。
-
-已经解决，见[10](# 10. mysql-binlog-connector-java监听不到任何事件)。
-
-### 4. `@Value`注解一直失效，显示找不到方法
+### 3. `@Value`注解一直失效，显示找不到方法
 
 导入错了，不能导入`lombok.Value`，必须导入`org.springframework.beans.factory.annotation.Value`。
 
-### 5. JPA引用其他包的类一直显示Not a managed type: class
+### 4. JPA引用其他包的类一直显示Not a managed type: class
 
 需要让Spring扫描到包，在启动类上添加实体扫描的注解，从组织名一直写到这个实体类所在的目录[^8]：
 
@@ -155,7 +151,7 @@ server:
 public class PayApplication {}
 ```
 
-### 6. 找不到RestTemplate的Bean
+### 5. 找不到RestTemplate的Bean
 
 Spring1.4以后不提供默认的`RestTemplate`的Bean，需要手动注入：
 
@@ -178,7 +174,98 @@ Spring1.4以后不提供默认的`RestTemplate`的Bean，需要手动注入：
    private RestTemplate restTemplate;
    ```
 
-### 7. docker的奇特bug
+### 6. zookeeper服务报错：Cannot invoke "java.net.InetAddress.getHostAddress()" because the return value of "java.net.InetSocketAddress.getAddress()" is null
+不要惊慌，目前暂时没啥影响，仍然可以正常使用。暂时忽略。
+
+### 7. 服务启动报错：Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.
+
+这是因为本模块不需要连接数据库所以没有配置数据库连接，但是使用了JPA实体类默认需要数据库连接，因此可以在启动的时候让spring不配置数据库连接，方法见[3. 使用JPA实体类而不配置JPA数据源](# 3. 使用JPA实体类而不配置JPA数据源)。
+
+### 8. Eureka消费者无法通过服务名调用生产者
+
+要给`RestTemplate`加上`@LoadBalanced`注解:
+
+```java
+@Bean
+@LoadBalanced
+public RestTemplate restTemplate() {
+    return new RestTemplate();
+}
+```
+
+- [ ] 阅读`LoadBalancerClient`及其相关源码。
+
+### 9. Resillience4j无法使用默认的配置
+
+参考了网上有的答案，设置了一个`default`配置，然后再对不同名称的各种断路器、限时器做特别配置如下：
+
+```yml
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        ...省略
+      pay:
+        ...省略
+  timelimiter:
+    instances:
+      default:
+        ...省略
+      pay:
+        ...省略
+```
+
+但实际上发现对其他没有配置的断路器、限时器，`default`配置根本不起作用。
+
+查看代码发现，对于`default`配置，无论是断路器、限时器等等，其注册的代码逻辑大体都如下：
+
+```java
+// DEFAULT_CONFIG是"default"配置的名称
+public InMemoryTimeLimiterRegistry(Map<String, TimeLimiterConfig> configs) {
+    this(configs.getOrDefault(DEFAULT_CONFIG, TimeLimiterConfig.ofDefaults()));
+    this.configurations.putAll(configs);
+}
+```
+
+可以看到注册时如果没有找到对应名称的配置，直接使用默认配置。但默认配置并非从配置文件读取，而是直接采用代码中设定的参数。所以在项目的`applications.yml`中配置这个`default`配置没有什么作用，还是需要针对每个不同名称的工具做具体配置。
+
+### 10. Redis Pipeline不能返回非空值
+
+错误：Callback cannot return a non-null value as it gets overwritten by the pipeline。其实已经说的很清楚了，Pipeline里返回时非空的值会被覆盖，所以只能返回`null`。
+
+```java
+public int insert(List<Entity> entities){
+    RedisSerializer<String> serializer=redisTemplate.getStringSerializer();
+    AtomicReference<Integer> count= new AtomicReference<>(0);
+    redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+        entities.forEach(entity->{
+                    Boolean result= connection.stringCommands().set(
+                            Objects.requireNonNull(serializer.serialize(String.valueOf(entity.getId()))),
+                            Objects.requireNonNull(serializer.serialize(String.valueOf(entity))),
+                            Expiration.seconds(timeout),
+                            RedisStringCommands.SetOption.UPSERT
+                    );
+                    if(Boolean.TRUE.equals(result)){
+                        count.getAndSet(count.get() + 1);
+                    }
+                });
+        return null;
+    });
+    return count.get();
+}
+```
+
+
+
+## Docker
+
+### 1. canal连接失败
+
+目前canal-server一直无法连接到数据库，暂未解决。
+
+已经解决，见[5](# 5. mysql-binlog-connector-java监听不到任何事件)。
+
+### 2. docker的奇特bug
 
 目前测试发现，如果给mysql和canal分别写两个`docker-compose.yml`文件，那么canal始终是连接不上mysql的。但是，如果把两个容器都写入同一个`docker-compose-yml`文件里，并且给mysql起名叫做`mysql`，在canal的`instance.properties`文件里把mysql的连接地址改为`canal.instance.master.address=mysql:3306`，就可以成功连接。而如果改为`localhost:3306`等等其他地址，就无法连接。
 
@@ -186,18 +273,18 @@ Spring1.4以后不提供默认的`RestTemplate`的Bean，需要手动注入：
 
 灵感来源：[^12]。
 
-解决办法：见[10](# 10. mysql-binlog-connector-java监听不到任何事件)。
+解决办法：见[5](# 5. mysql-binlog-connector-java监听不到任何事件)。
 
-### 8. canal始终连接不到mysql，一直报Connection Refused错误
+### 3. canal始终连接不到mysql，一直报Connection Refused错误
 
 1. 首先确保配置没问题。
 2. 如果canal和mysql都是docker容器，那问题其实是因为docker容器之间通信机制的特性[^10]。不同容器之间通信的地址是服务名，比如如果compose的时候mysql服务名为a，canal服务名为b，那canal连接mysql需要把地址设置为a，也就是`canal.instance.master.address=a:3306`。
 
-### 9. canal报错：PositionNotFoundException: can't find start position for example
+### 4. canal报错：PositionNotFoundException: can't find start position for example
 
 canal连接的mysql服务的server-id不能为0[^11]，必须另外设置其他值。
 
-### 10. mysql-binlog-connector-java监听不到任何事件
+### 5. mysql-binlog-connector-java监听不到任何事件
 
 问题可能还是出在docker通信机制上。使用本地mysql是可以监听到的，但是docker mysql会导致`BinaryLogClient`一直重置连接：
 
@@ -231,11 +318,7 @@ canal连接的mysql服务的server-id不能为0[^11]，必须另外设置其他�
 
 4. 接下来无论是canal还是mysql-binlog-connector-java都可以正常连接mysql了。
 
-### 11. redis集群创建报错：ERR Invalid node address specified: node0:6379
-
-因为`redis-cli`目前并不支持主机名，因此无论是多机之间或者是docker内的多节点之间，都不能使用类似于`hostname:port`的形式，只能使用`ip:port`的形式[^13]。
-
-### 12. docker一直警告：WARNING! Your password will be stored unencrypted in /home/sw/.docker/config.json.
+### 6. docker一直警告：WARNING! Your password will be stored unencrypted in /home/sw/.docker/config.json.
 
 因为密码存在config.json里，不安全。
 
@@ -273,60 +356,6 @@ canal连接的mysql服务的server-id不能为0[^11]，必须另外设置其他�
    上一步得到的是docker-credential-xxxx文件就在这里填写xxxx，比如docker-credential-pass就填写pass。
 
 6. 然后docker logout再docker login就没有烦人的warning了
-### 13. zookeeper服务报错：Cannot invoke "java.net.InetAddress.getHostAddress()" because the return value of "java.net.InetSocketAddress.getAddress()" is null
-不要惊慌，目前暂时没啥影响，仍然可以正常使用。暂时忽略。
-
-### 14. 服务启动报错：Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.
-
-这是因为本模块不需要连接数据库所以没有配置数据库连接，但是使用了JPA实体类默认需要数据库连接，因此可以在启动的时候让spring不配置数据库连接，方法见[3. 使用JPA实体类而不配置JPA数据源](# 3. 使用JPA实体类而不配置JPA数据源)。
-
-### 15. Eureka消费者无法通过服务名调用生产者
-
-要给`RestTemplate`加上`@LoadBalanced`注解:
-
-```java
-@Bean
-@LoadBalanced
-public RestTemplate restTemplate() {
-    return new RestTemplate();
-}
-```
-
-- [ ] 阅读`LoadBalancerClient`及其相关源码。
-
-### 16. Resillience4j无法使用默认的配置
-
-参考了网上有的答案，设置了一个`default`配置，然后再对不同名称的各种断路器、限时器做特别配置如下：
-
-```yml
-resilience4j:
-  circuitbreaker:
-    instances:
-      default:
-        ...省略
-      pay:
-        ...省略
-  timelimiter:
-    instances:
-      default:
-        ...省略
-      pay:
-        ...省略
-```
-
-但实际上发现对其他没有配置的断路器、限时器，`default`配置根本不起作用。
-
-查看代码发现，对于`default`配置，无论是断路器、限时器等等，其注册的代码逻辑大体都如下：
-
-```java
-// DEFAULT_CONFIG是"default"配置的名称
-public InMemoryTimeLimiterRegistry(Map<String, TimeLimiterConfig> configs) {
-    this(configs.getOrDefault(DEFAULT_CONFIG, TimeLimiterConfig.ofDefaults()));
-    this.configurations.putAll(configs);
-}
-```
-
-可以看到注册时如果没有找到对应名称的配置，直接使用默认配置。但默认配置并非从配置文件读取，而是直接采用代码中设定的参数。所以在项目的`applications.yml`中配置这个`default`配置没有什么作用，还是需要针对每个不同名称的工具做具体配置。
 
 ## Consul
 
@@ -350,6 +379,12 @@ spring:
 然后重启服务，就会发现正常了:white_check_mark:：
 
 <img src="assets/consul服务健康检测正常.png" alt="image-20231111175121225" style="zoom:67%;" />
+
+## Redis
+
+### 1. redis集群创建报错：ERR Invalid node address specified: node0:6379
+
+因为`redis-cli`目前并不支持主机名，因此无论是多机之间或者是docker内的多节点之间，都不能使用类似于`hostname:port`的形式，只能使用`ip:port`的形式[^13]。
 
 # 配置
 

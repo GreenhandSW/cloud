@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Sync" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="Sync" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="eureka-single">
     <module name="Sync" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.greenhandsw.sync.SyncApplication" />
     <method v="2">

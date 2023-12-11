@@ -2,7 +2,6 @@ package io.github.greenhandsw.ordereurekafeign.controller;
 
 import io.github.greenhandsw.core.controller.BaseRestController;
 import io.github.greenhandsw.core.entity.CommonResult;
-import io.github.greenhandsw.core.entity.Payment;
 import io.github.greenhandsw.ordereurekafeign.service.PayFeignService;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -25,13 +24,13 @@ import java.util.concurrent.TimeoutException;
 @RequestMapping("/${order.prefix}")
 @Slf4j
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-public class OrderController extends BaseRestController<Payment, Long> {
+public class OrderController extends BaseRestController<Object, Long> {
     @Resource
     private PayFeignService service;
 
     @PostMapping("/get")
     @Override
-    public CommonResult<Payment> get(@RequestBody Long id) {
+    public CommonResult<Object> get(@RequestBody Long id) {
         return service.get(id);
     }
 

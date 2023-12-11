@@ -20,3 +20,5 @@ spring:
 #  level:
 ##    io.github.greenhandsw.sync.SyncApplication: debug
 #    root: debug
+kafka:
+  topic: example

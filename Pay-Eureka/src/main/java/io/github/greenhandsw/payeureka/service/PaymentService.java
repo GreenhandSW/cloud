@@ -1,6 +1,6 @@
 package io.github.greenhandsw.payeureka.service;
 
-import io.github.greenhandsw.core.entity.Payment;
+import io.github.greenhandsw.common.entity.Payment;
 import io.github.greenhandsw.core.service.BaseService;
 import io.github.greenhandsw.payeureka.repository.PaymentRepository;
 import jakarta.annotation.Resource;

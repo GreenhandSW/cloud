@@ -1,6 +1,7 @@
 package io.github.greenhandsw.payeureka;
 
 import io.github.greenhandsw.split.DataSourceInterceptor;
+import io.github.greenhandsw.split.DynamicDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -8,8 +9,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import(DataSourceInterceptor.class)
-@EntityScan("io.github.greenhandsw.core.entity")
+@EntityScan("io.github.greenhandsw.common.entity")
+@Import({DynamicDataSource.DataSourceConfig.class, DataSourceInterceptor.class})
 @EnableDiscoveryClient
 public class PayEurekaApplication {
 

@@ -5,11 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Order
+@NoRepositoryBean
 public interface BaseRepository<ENTITY, ID extends Serializable> extends JpaRepository<ENTITY, ID> {
 //    <T extends ENTITY> T save(T entity);
 

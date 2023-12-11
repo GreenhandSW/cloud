@@ -1,8 +1,0 @@
-server:
-  port: 11000
-canal:
-  client:
-    instances:
-      example:
-        host: localhost
-        port: 11111

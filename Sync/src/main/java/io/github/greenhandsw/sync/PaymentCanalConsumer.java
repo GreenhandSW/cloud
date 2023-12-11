@@ -1,16 +1,15 @@
-package io.github.greenhandsw.ordereureka.controller;
+package io.github.greenhandsw.sync;
 
-import io.github.greenhandsw.core.controller.BaseRestController;
+import io.github.greenhandsw.sync.common.CanalConsumer;
+import io.github.greenhandsw.common.entity.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 
-@RestController("order")
-@RequestMapping("/customer/order")
 @Slf4j
+@Component
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-public class OrderController extends BaseRestController<Object, Long> {
+public class PaymentCanalConsumer extends CanalConsumer<Payment, Long> {
 }

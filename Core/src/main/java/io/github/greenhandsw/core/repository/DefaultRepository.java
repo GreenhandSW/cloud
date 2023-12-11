@@ -3,9 +3,11 @@ package io.github.greenhandsw.core.repository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 
+@Repository
 public class DefaultRepository<ENTITY, ID extends Serializable> extends SimpleJpaRepository<ENTITY, ID> implements BaseRepository<ENTITY, ID> {
     public DefaultRepository(JpaEntityInformation<ENTITY, ID> entityInformation, EntityManager entityManager) {
         super(entityInformation, entityManager);

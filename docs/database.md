@@ -1,4 +1,4 @@
-https://forums.oracle.com/ords/apexds/post/jpa-mysql-sequence-table-created-when-use-generatedtype-aut-1643主要记录遇到的数据库问题及解决方法
+主要记录遇到的数据库问题及解决方法
 
 # MySQL
 
@@ -80,7 +80,7 @@ UNIQUE KEY relation_id(`id`),
 
 关联可以双向设置，也可以单向设置[^3]。由于多对多查询会消耗很多资源，因此尽量使用中间表将多对多转为多对一、一对多关系，另还有一对一关系[^4]。
 
-<img src="/home/sw/Documents/code/idea/cloud/docs/assets/webp.webp" alt="img" style="zoom:50%;" />
+<img src="assets/webp.webp" alt="img" style="zoom:50%;" />
 
 单向设置方式（以多对一为例）[^5]：
 
