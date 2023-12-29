@@ -7,7 +7,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CommentService extends BaseService<Comment, Long, CommentRepository> {
-    @Resource
-    private CommentRepository r;
+public class CommentService extends BaseService<Comment, Long> {
+
 }

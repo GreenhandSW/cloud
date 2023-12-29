@@ -7,7 +7,5 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentService extends BaseService<Payment, Long, PaymentRepository> {
-    @Resource
-    private PaymentRepository r;
+public class PaymentService extends BaseService<Payment, Long> {
 }

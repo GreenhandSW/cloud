@@ -1,6 +1,6 @@
 package io.github.greenhandsw.payconsul.controller;
 
-import io.github.greenhandsw.core.controller.BaseController;
+import io.github.greenhandsw.core.controller.BaseTmpController;
 import io.github.greenhandsw.core.entity.Payment;
 import io.github.greenhandsw.payconsul.repository.PaymentRepository;
 import io.github.greenhandsw.payconsul.service.PaymentService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController("pay")
 @RequestMapping("/pay")
-public class PaymentController extends BaseController<Payment, PaymentService, Long, PaymentRepository> {
+public class PaymentController extends BaseTmpController<Payment, PaymentService, Long, PaymentRepository> {
     @GetMapping("/error")
     public Object error(){
         return "出错了";

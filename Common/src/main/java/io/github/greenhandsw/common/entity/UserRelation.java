@@ -12,15 +12,15 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "user_relation", uniqueConstraints =
-@UniqueConstraint(name = "followeds", columnNames = {"follower_id", "followed_id"})
-)
+@Table(name = "user_relation", uniqueConstraints ={
+        @UniqueConstraint(name = "followeds", columnNames = {"follower_id", "followed_id"}),
+})
 @IdClass(UserRelationKey.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRelation implements BaseEntity<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true)
+    @Column(name = "id", unique = true, columnDefinition = "bigint unique auto_increment")
     private Long id;
 
     @Id

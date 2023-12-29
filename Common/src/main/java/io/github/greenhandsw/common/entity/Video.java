@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Video implements BaseEntity<Long> {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
     private Long id;
 

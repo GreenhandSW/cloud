@@ -18,8 +18,8 @@ POST http://{{host}}:{{orderPort}}/{{order}}/add
 Content-Type: application/json
 
 {
-  "id":996,
-  "serial": "不知道"
+  "id":9926,
+  "serial": "111不知道"
 }
 
 ### 用户查询
@@ -75,3 +75,55 @@ GET http://{{host}}:{{gatewayPort}}/search?wd=谷歌
 
 ### 百度 测试
 GET http://www.baidu.com/s?wd=学习
+
+### UserInfo add
+POST http://{{host}}:{{payPort}}/{{userinfo}}/add
+Content-Type: application/json
+
+{
+  "phone": "1123",
+  "password": "诉讼的"
+}
+
+### Video add
+POST http://{{host}}:{{payPort}}/{{video}}/add
+Content-Type: application/json
+
+{
+  "userId": 12345,
+  "timestamp": "",
+  "coverUrl": "1053ed292137b3d271a715ad7b.png",
+  "url": "https://blog.csdn.08356",
+  "title": "实现排行榜",
+  "description": "现捏"
+}
+
+### Video get
+POST http://{{host}}:{{payPort}}/{{video}}/get
+Content-Type: application/json
+
+1
+
+### User Relation get
+POST http://{{host}}:{{payPort}}/{{userrelation}}/get
+Content-Type: application/json
+
+1
+
+### User Relation follow
+POST http://{{host}}:{{payPort}}/{{userrelation}}/follow
+Content-Type: application/json
+
+{
+  "followedId": 1,
+  "followerId": 4
+}
+
+### User Relation add
+POST http://{{host}}:{{payPort}}/{{userrelation}}/add
+Content-Type: application/json
+
+{
+  "followedId": 1,
+  "followerId": 4
+}

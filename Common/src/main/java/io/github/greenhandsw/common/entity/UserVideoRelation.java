@@ -12,15 +12,15 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "user_video_relation", uniqueConstraints =
-@UniqueConstraint(name = "user2video", columnNames = {"user_id", "video_id"})
-)
+@Table(name = "user_video_relation", uniqueConstraints ={
+        @UniqueConstraint(name = "user2video", columnNames = {"user_id", "video_id"}),
+})
 @IdClass(UserVideoRelationKey.class)
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserVideoRelation implements BaseEntity<Long> {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true, columnDefinition = "bigint unique auto_increment")
     private Long id;
 
     @Id

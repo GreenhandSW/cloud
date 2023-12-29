@@ -7,7 +7,5 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserDataService extends BaseService<UserData, Long, UserDataRepository> {
-    @Resource
-    private UserDataRepository r;
+public class UserDataService extends BaseService<UserData, Long> {
 }

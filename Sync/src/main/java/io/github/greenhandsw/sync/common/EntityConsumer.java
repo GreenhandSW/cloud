@@ -21,15 +21,15 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 @NoArgsConstructor
-public class CanalConsumer<Entity extends BaseEntity<ID>, ID extends Serializable> {
+public class EntityConsumer<Entity extends BaseEntity<ID>, ID extends Serializable> {
 
     private long timeout = 600L;
 
-    public CanalConsumer(long timeout){
+    public EntityConsumer(long timeout){
         this.timeout=timeout;
     }
 
-    private static final Logger log= LoggerFactory.getLogger(CanalConsumer.class);
+    private static final Logger log= LoggerFactory.getLogger(EntityConsumer.class);
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 

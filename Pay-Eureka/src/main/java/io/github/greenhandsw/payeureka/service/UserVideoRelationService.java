@@ -7,7 +7,5 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserVideoRelationService extends BaseService<UserVideoRelation, Long, UserVideoRelationRepository> {
-    @Resource
-    private UserVideoRelationRepository r;
+public class UserVideoRelationService extends BaseService<UserVideoRelation, Long> {
 }

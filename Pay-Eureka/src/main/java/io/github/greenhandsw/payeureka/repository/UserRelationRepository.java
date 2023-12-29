@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRelationRepository extends JpaRepository<UserRelation, Long> {
-    public int deleteAllByFollowedIdOrFollowedId(Long followedId, Long followerId);
+    int deleteAllByFollowedIdOrFollowedId(Long followedId, Long followerId);
+
+    void deleteByFollowedIdAndFollowerId(Long followedId, Long followerId);
 }

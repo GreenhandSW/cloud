@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserVideoRelationRepository extends JpaRepository<UserVideoRelation, Long> {
 
-    public void deleteAllByUserId(Long userId);
+    void deleteAllByUserId(Long userId);
 }

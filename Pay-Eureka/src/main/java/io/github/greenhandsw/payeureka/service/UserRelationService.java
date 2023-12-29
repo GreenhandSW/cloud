@@ -6,8 +6,17 @@ import io.github.greenhandsw.payeureka.repository.UserRelationRepository;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @Service
-public class UserRelationService extends BaseService<UserRelation, Long, UserRelationRepository> {
+public class UserRelationService extends BaseService<UserRelation, Long> {
     @Resource
     private UserRelationRepository r;
+
+    @Override
+    public void delete(UserRelation relation){
+        r.deleteByFollowedIdAndFollowerId(relation.getFollowedId(), relation.getFollowerId());
+        afterDelete(relation);
+    }
 }

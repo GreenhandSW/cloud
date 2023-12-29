@@ -38,9 +38,11 @@ request:
   service:
     url: http://${pay.name}/${pay.prefix}
 logging:
-  level:  # 可以直接指定对某个类下面的所有方法的日志监控级别
-    io.github.greenhandsw.ordereurekafeign.controller.OrderController: debug
-    org.springframework.cloud.circuitbreaker.resilience4j: debug
+  level:
+    root: trace # 可以直接指定对某个类下面的所有方法的日志监控级别
+    org.apache.tomcat.util.net: fatal
+#    io.github.greenhandsw.ordereurekafeign.controller.OrderController: debug
+#    org.springframework.cloud.circuitbreaker.resilience4j: debug
 
 resilience4j:
   ratelimiter:

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserInfoService extends BaseService<UserInfo, Long, UserInfoRepository> {
+public class UserInfoService extends BaseService<UserInfo, Long> {
     @Resource
     private UserInfoRepository r;
 
@@ -27,9 +27,14 @@ public class UserInfoService extends BaseService<UserInfo, Long, UserInfoReposit
     @Resource
     private CommentRepository cr;
 
+//    public boolean save(UserInfo userInfo){
+//        r.save(userInfo);
+//    }
+
     public UserInfo findByPhone(String phone){
         return r.findByPhone(phone);
     }
+
 
     private Long findIdByPhone(String phone){
         return r.findByPhone(phone).getId();

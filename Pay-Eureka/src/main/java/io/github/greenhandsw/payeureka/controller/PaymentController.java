@@ -1,10 +1,8 @@
 package io.github.greenhandsw.payeureka.controller;
 
-import io.github.greenhandsw.core.controller.BaseController;
+import io.github.greenhandsw.core.controller.BaseTmpController;
 import io.github.greenhandsw.core.entity.CommonResult;
 import io.github.greenhandsw.common.entity.Payment;
-import io.github.greenhandsw.payeureka.repository.PaymentRepository;
-import io.github.greenhandsw.payeureka.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @RestController("pay")
 @RequestMapping("/pay")
-public class PaymentController extends BaseController<Payment, PaymentService, Long, PaymentRepository> {
+public class PaymentController extends BaseTmpController<Payment, Long> {
     private final AtomicInteger requestCount=new AtomicInteger(0);
     @RequestMapping("/timeout")
     public CommonResult<String> timeout(@RequestBody Long sleepMilliseconds) throws InterruptedException {

@@ -42,6 +42,6 @@ registers:
     name: register2
     host: localhost
     port: 13002
-logging:
-  level:
-    root: debug
+#logging:
+#  level:
+#    root: debug
