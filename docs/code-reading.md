@@ -23,7 +23,9 @@ public class PayEurekaApplication {
 public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
 	return run(new Class<?>[] { primarySource }, args);
 }
+```
 
+```java
 public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
 	return new SpringApplication(primarySources).run(args);
 }
@@ -31,7 +33,7 @@ public static ConfigurableApplicationContext run(Class<?>[] primarySources, Stri
 
 #### 1.2. 创建`SpringApplication`
 
-创建的过程，也是嵌套的，调用了多个构造方法。总结起来，创建过程主要是分析应用类型（Servlet），然后获取各种初始化类的实例并设置到`SpringApplication`的内部列表中，如启动注册初始化类、应用上下文初始化类、应用监听器类等。最后将主类设置为启动类
+创建的过程，也是嵌套的，调用了多个构造方法。总结起来，创建过程主要是分析应用类型（这里是`SERVLET`），然后获取各种初始化类的实例并设置到`SpringApplication`的内部列表中，如启动注册初始化类、应用上下文初始化类、应用监听器类等。最后将主类设置为启动类
 
 ```java
 public SpringApplication(Class<?>... primarySources) {
@@ -502,7 +504,7 @@ protected void configureEnvironment(ConfigurableEnvironment environment, String[
    }
    ```
 
-###### 1.3.5.3. 附加
+###### 1.3.5.3. 添加配置属性源
 
 主要是从环境的属性源列表中移除属性源，换成一个`ConfigurationPropertySource`并且放到列表头部。
 
@@ -586,35 +588,99 @@ private Banner printBanner(ConfigurableEnvironment environment) {
 
 ##### 1.3.7. 创建应用上下文
 
-仍然是使用`getFromSpringFactories()`方法创建，不过创建的类型不是应用而是应用上下文，最后得到了一个`AnnotationConfigServletWebServerApplicationContext`。
+###### 1.3.7.1. 获取应用上下文实例
 
-```java
-/**
- * Strategy method used to create the {@link ApplicationContext}. By default this
- * method will respect any explicitly set application context class or factory before
- * falling back to a suitable default.
- * @return the application context (not yet refreshed)
- * @see #setApplicationContextFactory(ApplicationContextFactory)
- */
-protected ConfigurableApplicationContext createApplicationContext() {
-	return this.applicationContextFactory.create(this.webApplicationType);
-}
-```
+1. 仍然是使用`getFromSpringFactories()`方法创建，不过创建的类型不是应用而是应用上下文，最后得到了一个`AnnotationConfigServletWebServerApplicationContext`。其中`getFromSpringFactories`仍然与[1.3.5.1. 创建环境](# 1.3.5.1. 创建环境)中第2步的方法相同
 
-```
-public ConfigurableApplicationContext create(WebApplicationType webApplicationType) {
-    try {
-       return getFromSpringFactories(webApplicationType, ApplicationContextFactory::create,
-             this::createDefaultApplicationContext);
-    }
-    catch (Exception ex) {
-       throw new IllegalStateException("Unable create a default ApplicationContext instance, "
-             + "you may need a custom ApplicationContextFactory", ex);
-    }
-}
-```
+   ```java
+   /**
+    * Strategy method used to create the {@link ApplicationContext}. By default this
+    * method will respect any explicitly set application context class or factory before
+    * falling back to a suitable default.
+    * @return the application context (not yet refreshed)
+    * @see #setApplicationContextFactory(ApplicationContextFactory)
+    */
+   protected ConfigurableApplicationContext createApplicationContext() {
+   	return this.applicationContextFactory.create(this.webApplicationType);
+   }
+   ```
 
-###### 1.3.8. 准备应用上下文
+   ```java
+   public ConfigurableApplicationContext create(WebApplicationType webApplicationType) {
+       try {
+          return getFromSpringFactories(webApplicationType, ApplicationContextFactory::create,
+                this::createDefaultApplicationContext);
+       }
+       catch (Exception ex) {
+          throw new IllegalStateException("Unable create a default ApplicationContext instance, "
+                + "you may need a custom ApplicationContextFactory", ex);
+       }
+   }
+   ```
+
+2. 在`getFromSpringFactories()`方法中同时会调用`createDefaultApplicationContext()`方法，该方法主要是创建一个通用的应用上下文
+
+   ```java
+   private ConfigurableApplicationContext createDefaultApplicationContext() {
+   	if (!AotDetector.useGeneratedArtifacts()) {
+   		return new AnnotationConfigApplicationContext();
+   	}
+   	return new GenericApplicationContext();
+   }
+   ```
+
+###### 1.3.7.2. 创建Bean工厂
+
+1. 通用的应用上下文的空构造方法主要是创建一个默认的`DefaultListableBeanFactory`，也就是Bean工厂。
+
+   ```java
+   /**
+    * Create a new GenericApplicationContext.
+    * @see #registerBeanDefinition
+    * @see #refresh
+    */
+   public GenericApplicationContext() {
+   	this.beanFactory = new DefaultListableBeanFactory();
+   }
+   ```
+
+2. 层层继承，使用了`ignoreDependencyInterface()`方法，其主要是避免工厂被自动注入，而只能通过应用上下文注入[^4][^5]。
+
+   ```java
+   /**
+    * Create a new DefaultListableBeanFactory.
+    */
+   public DefaultListableBeanFactory() {
+   	super();
+   }
+   ```
+
+   ```java
+   /**
+    * Create a new AbstractAutowireCapableBeanFactory.
+    */
+   public AbstractAutowireCapableBeanFactory() {
+   	super();
+       // 忽略工厂的BeanNameAware装配方式，也就是让其不能通过BeanNameAware下的接口方法被自动注入
+   	ignoreDependencyInterface(BeanNameAware.class);
+       // 忽略工厂的 BeanFactoryAware 装配方式，也就是让其不能通过 BeanFactoryAware 下的接口方法被自动注入
+   	ignoreDependencyInterface(BeanFactoryAware.class);
+       // 忽略工厂的 BeanClassLoaderAware 装配方式，也就是让其不能通过 BeanClassLoaderAware 下的接口方法被自动注入
+   	ignoreDependencyInterface(BeanClassLoaderAware.class);
+       // 设置实例化策略为cglib子类实例化策略
+   	this.instantiationStrategy = new CglibSubclassingInstantiationStrategy();
+   }
+   ```
+
+   ```java
+   /**
+    * Create a new AbstractBeanFactory.
+    */
+   public AbstractBeanFactory() {
+   }
+   ```
+
+##### 1.3.8. 准备应用上下文
 
 ```java
 private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
@@ -622,40 +688,366 @@ private void prepareContext(DefaultBootstrapContext bootstrapContext, Configurab
 		ApplicationArguments applicationArguments, Banner printedBanner) {
     // 设置上下文的环境
 	context.setEnvironment(environment);
+    // 将转换器service设置到上下文的Bean工厂中
 	postProcessApplicationContext(context);
+    // 如有需要，提前编译上下文（native强制，或在JVM启动时通过`spring.aot.enabled`参数设置）
 	addAotGeneratedInitializerIfNecessary(this.initializers);
+    // 执行各个contextInitializer的初始化方法
 	applyInitializers(context);
+    // 上下文准备完成，发出广播
 	listeners.contextPrepared(context);
+    // 广播关闭启动上下文事件
 	bootstrapContext.close(context);
 	if (this.logStartupInfo) {
+        // 打印主类启动日志(debug/info)
 		logStartupInfo(context.getParent() == null);
+        // 打印主配置文件名称日志(info)
 		logStartupProfileInfo(context);
 	}
 	// Add boot specific singleton beans
+    // 获取上下文的Bean工厂（这里的上下文是 GenericApplicationContext）
 	ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+    // 注册应用参数的单例
 	beanFactory.registerSingleton("springApplicationArguments", applicationArguments);
 	if (printedBanner != null) {
+        // 注册打印出来的Spring图标单例
 		beanFactory.registerSingleton("springBootBanner", printedBanner);
 	}
 	if (beanFactory instanceof AbstractAutowireCapableBeanFactory autowireCapableBeanFactory) {
+        // 设置禁止循环引用（SpringApplication中的设置默认是false，也就是禁止）
 		autowireCapableBeanFactory.setAllowCircularReferences(this.allowCircularReferences);
 		if (beanFactory instanceof DefaultListableBeanFactory listableBeanFactory) {
+            // 设置禁止Bean定义覆盖（SpringApplication中的设置默认是false，也就是禁止）
 			listableBeanFactory.setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
 		}
 	}
+    // 如果设置了懒加载（默认是false，也就是不执行这里）
 	if (this.lazyInitialization) {
+        // 在上下文中添加一个新的 LazyInitializationBeanFactoryPostProcessor 实例
 		context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
 	}
+    // 在上下文中添加一个 PropertySourceOrderingBeanFactoryPostProcessor，该实例用于对添加了 @PropertySource 注解的类进行重排序
 	context.addBeanFactoryPostProcessor(new PropertySourceOrderingBeanFactoryPostProcessor(context));
+    // 如果没有开启AOT
 	if (!AotDetector.useGeneratedArtifacts()) {
 		// Load the sources
+        // 获取所有源，实际上也只能获取到主类，也就是primarySource
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
+        // 将Bean加载到上下文中
 		load(context, sources.toArray(new Object[0]));
 	}
+    // 广播一个应用上下文加载完成的事件
 	listeners.contextLoaded(context);
 }
 ```
+
+###### 1.3.8.1. 设置上下文的环境
+
+1. 启动时的`context`实际上是`AnnotationConfigServletWebServerApplicationContext`，因此执行的`setEnvironment()`方法是如下，主要是把环境设置到上下文中，然后为注解Bean或者扫描Bean的实例设置`ConditionEvaluator`，从而根据`@Conditional`注解决定是否注册该Bean[^2][^3]。
+
+   ```java
+   /**
+    * {@inheritDoc}
+    * <p>
+    * Delegates given environment to underlying {@link AnnotatedBeanDefinitionReader} and
+    * {@link ClassPathBeanDefinitionScanner} members.
+    */
+   @Override
+   public void setEnvironment(ConfigurableEnvironment environment) {
+       // 把环境设置到上下文中
+   	super.setEnvironment(environment);
+       // 给内部的 AnnotatedBeanDefinitionReader实例设置一个 ConditionEvaluator，用来在注册Bean的时候根据@Conditional条件决定是否注册
+   	this.reader.setEnvironment(environment);
+       // 给内部的 ClassPathBeanDefinitionScanner 实例设置一个ConditionEvaluator，用来在扫描Bean的时候根据@Conditional条件决定是否注册
+   	this.scanner.setEnvironment(environment);
+   }
+   ```
+
+###### 1.3.8.2. 设置转换器服务
+
+把环境里的转换器service设置到上下文的Bean工厂中
+
+```java
+/**
+ * Apply any relevant post-processing to the {@link ApplicationContext}. Subclasses
+ * can apply additional processing as required.
+ * @param context the application context
+ */
+protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
+	if (this.beanNameGenerator != null) {
+		context.getBeanFactory()
+			.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, this.beanNameGenerator);
+	}
+	if (this.resourceLoader != null) {
+		if (context instanceof GenericApplicationContext genericApplicationContext) {
+			genericApplicationContext.setResourceLoader(this.resourceLoader);
+		}
+		if (context instanceof DefaultResourceLoader defaultResourceLoader) {
+			defaultResourceLoader.setClassLoader(this.resourceLoader.getClassLoader());
+		}
+	}
+	if (this.addConversionService) {
+		context.getBeanFactory().setConversionService(context.getEnvironment().getConversionService());
+	}
+}
+```
+
+###### 1.3.8.3.若需要则提前编译上下文
+
+native强制，或在JVM启动时通过`spring.aot.enabled`参数设置
+
+```java
+private void addAotGeneratedInitializerIfNecessary(List<ApplicationContextInitializer<?>> initializers) {
+	if (AotDetector.useGeneratedArtifacts()) {
+		List<ApplicationContextInitializer<?>> aotInitializers = new ArrayList<>(
+				initializers.stream().filter(AotApplicationContextInitializer.class::isInstance).toList());
+		if (aotInitializers.isEmpty()) {
+			String initializerClassName = this.mainApplicationClass.getName() + "__ApplicationContextInitializer";
+			aotInitializers.add(AotApplicationContextInitializer.forInitializerClasses(initializerClassName));
+		}
+		initializers.removeAll(aotInitializers);
+		initializers.addAll(0, aotInitializers);
+	}
+}
+```
+
+###### 1.3.8.4. 上下文初始化
+
+执行各个contextInitializer的初始化方法
+
+```java
+ * Apply any {@link ApplicationContextInitializer}s to the context before it is
+ * refreshed.
+ * @param context the configured ApplicationContext (not refreshed yet)
+ * @see ConfigurableApplicationContext#refresh()
+ */
+@SuppressWarnings({ "rawtypes", "unchecked" })
+protected void applyInitializers(ConfigurableApplicationContext context) {
+	for (ApplicationContextInitializer initializer : getInitializers()) {
+		Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.ge
+				ApplicationContextInitializer.class);
+		Assert.isInstanceOf(requiredType, context, "Unable to call initializer.");
+		initializer.initialize(context);
+	}
+}
+```
+
+###### 1.3.8.5. 广播上下文准备完成事件
+
+向监听器广播一个上下文准备完成的事件
+
+```java
+void contextPrepared(ConfigurableApplicationContext context) {
+	doWithListeners("spring.boot.application.context-prepared", (listener) -> listener.contextPrepared(context));
+}
+```
+
+###### 1.3.8.6. 广播关闭启动上下文事件
+
+```java
+/**
+ * Method to be called when {@link BootstrapContext} is closed and the
+ * {@link ApplicationContext} is prepared.
+ * @param applicationContext the prepared context
+ */
+public void close(ConfigurableApplicationContext applicationContext) {
+	this.events.multicastEvent(new BootstrapContextClosedEvent(this, applicationContext));
+}
+```
+
+###### 1.3.8.7. 将应用参数单例注册到Bean工厂
+
+通过`DefaultListableBeanFactory`实例的`registerSingleton()`方法注册单例
+
+```java
+public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
+    // 调用父类方法注册单例
+	super.registerSingleton(beanName, singletonObject);
+    // 把单例名从手动注册单例名集合中删除
+	updateManualSingletonNames(set -> set.add(beanName), set -> !this.beanDefinitionMap.containsKey(beanName));
+    // 清理缓存
+	clearByTypeCache();
+}
+```
+
+1. 调用父类方法注册单例
+
+   1. 调用父类`DefaultSingletonBeanRegistry`的同名方法，在该方法中，对`singletonObjects`加锁，然后再添加单例确保唯一性。其中`singletonObjects`是一个存储单例对象的`ConcurrentHashMap`。如果添加前发现已经存在了，就直接抛出异常。
+
+      ```java
+      public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
+      	Assert.notNull(beanName, "Bean name must not be null");
+      	Assert.notNull(singletonObject, "Singleton object must not be null");
+      	synchronized (this.singletonObjects) {
+      		Object oldObject = this.singletonObjects.get(beanName);
+      		if (oldObject != null) {
+      			throw new IllegalStateException("Could not register object [" + singletonObject +
+      					"] under bean name '" + beanName + "': there is already object [" + oldObject + "] bound");
+      		}
+      		addSingleton(beanName, singletonObject);
+      	}
+      }
+      ```
+
+   2. 添加单例的具体逻辑是：先加同步锁，然后把单例实例添加到缓存中。
+
+      ```java
+      /**
+       * Add the given singleton object to the singleton cache of this factory.
+       * <p>To be called for eager registration of singletons.
+       * @param beanName the name of the bean
+       * @param singletonObject the singleton object
+       */
+      protected void addSingleton(String beanName, Object singletonObject) {
+      	synchronized (this.singletonObjects) {
+              // 放到单例对象map中（一级缓存）
+      		this.singletonObjects.put(beanName, singletonObject);
+              // 从单例工厂map中删除（三级缓存）
+      		this.singletonFactories.remove(beanName);
+              // 从早期单例对象map中删除（二级缓存）
+      		this.earlySingletonObjects.remove(beanName);
+              // 注册：放到注册单例set中
+      		this.registeredSingletons.add(beanName);
+      	}
+      }
+      ```
+
+2. 注册完成后需要更新工厂内的单例名集合，即将该单例名从 `manualSingletonNames`集合中删除
+
+   ```java
+   /**
+    * Update the factory's internal set of manual singleton names.
+    * @param action the modification action
+    * @param condition a precondition for the modification action
+    * (if this condition does not apply, the action can be skipped)
+    */
+   private void updateManualSingletonNames(Consumer<Set<String>> action, Predicate<Set<String>> condition) {
+       // 如果Bean创建已经开始了
+   	if (hasBeanCreationStarted()) {
+   		// Cannot modify startup-time collection elements anymore (for stable iteration)
+   		synchronized (this.beanDefinitionMap) {
+               // 如果满足条件，也就是 beanDefinitionMap 中不存在这个Bean的名称，
+               // 就把这个单例名从 manualSingletonNames 中删除
+               // 通过这样比较绕的逻辑删除，是因为在Bean创建开始后，其他函数中存在一些没有加锁的代码，对 manualSingletonNames 访问并处理，可以理解为类似于CopyOnWriteArrayList的逻辑
+   			if (condition.test(this.manualSingletonNames)) {
+                   // 用manualSingletonNames新建一个更新后的单例名集合
+   				Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames);
+                   // 把这个单例名从更新后的名字集合中删除
+   				action.accept(updatedSingletons);
+                   // 把 manualSingletonNames 替换为更新后的名字集合
+   				this.manualSingletonNames = updatedSingletons;
+   			}
+   		}
+   	}
+       // 如果Bean创建还没开始，还在启动注册阶段，不存在其他逻辑访问 manualSingletonNames，就不需要加锁
+   	else {
+   		// Still in startup registration phase
+           // 仍然满足条件
+   		if (condition.test(this.manualSingletonNames)) {
+               // 把这个单例名从 manualSingletonNames 中删除
+   			action.accept(this.manualSingletonNames);
+   		}
+   	}
+   }
+   ```
+
+   1. 首先判断Bean创建是否已经开始了，`alreadyCreated`是一个set，存放已经被创建至少一次的单例，如果该集合不为空，说明已经开始了。
+
+      ```java
+      /**
+       * Check whether this factory's bean creation phase already started,
+       * i.e. whether any bean has been marked as created in the meantime.
+       * @since 4.2.2
+       * @see #markBeanAsCreated
+       */
+      protected boolean hasBeanCreationStarted() {
+      	return !this.alreadyCreated.isEmpty();
+      }
+      ```
+
+   2. 然后判断是否满足条件，如果满足则依次执行复制新集合、从旧集合中删除、更新旧集合的过程，将Bean名称从`manualSingletonNames`中删除
+
+   3. 如果Bean创建没有开始，无线程安全问题，直接将Bean名称从`manualSingletonNames`中删除
+
+3. 删除缓存：启动的时候缓存自然是空的，因此这里的删除没什么作用
+
+   ```java
+   /**
+    * Remove any assumptions about by-type mappings.
+    */
+   private void clearByTypeCache() {
+   	this.allBeanNamesByType.clear();
+   	this.singletonBeanNamesByType.clear();
+   }
+   ```
+
+###### 1.3.8.8. 将Bean加载到上下文中
+
+首先获取Bean定义注册器（也就是Bean容器）、创建Bean定义加载器，然后再加载
+
+```java
+/**
+ * Load beans into the application context.
+ * @param context the context to load beans into
+ * @param sources the sources to load
+ */
+protected void load(ApplicationContext context, Object[] sources) {
+	if (logger.isDebugEnabled()) {
+		logger.debug("Loading source " + StringUtils.arrayToCommaDelimitedString(sources));
+	}
+    // 获取容器
+    // 创建加载器
+	BeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
+	if (this.beanNameGenerator != null) {
+		loader.setBeanNameGenerator(this.beanNameGenerator);
+	}
+	if (this.resourceLoader != null) {
+		loader.setResourceLoader(this.resourceLoader);
+	}
+	if (this.environment != null) {
+		loader.setEnvironment(this.environment);
+	}
+	loader.load();
+}
+```
+
+1. 获取Bean容器，由于`AnnotationConfigServletWebServerApplicationContext`本身实现了`BeanDefinitionRegistry`接口，因此直接转型即可。
+
+   ```java
+   /**
+    * Get the bean definition registry.
+    * @param context the application context
+    * @return the BeanDefinitionRegistry if it can be determined
+    */
+   private BeanDefinitionRegistry getBeanDefinitionRegistry(ApplicationContext context) {
+       // 直接转型
+   	if (context instanceof BeanDefinitionRegistry registry) {
+   		return registry;
+   	}
+   	if (context instanceof AbstractApplicationContext abstractApplicationContext) {
+   		return (BeanDefinitionRegistry) abstractApplicationContext.getBeanFactory();
+   	}
+   	throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
+   }
+   ```
+
+2. 创建Bean定义加载器
+
+   ```java
+   /**
+    * Factory method used to create the {@link BeanDefinitionLoader}.
+    * @param registry the bean definition registry
+    * @param sources the sources to load
+    * @return the {@link BeanDefinitionLoader} that will be used to load beans
+    */
+   protected BeanDefinitionLoader createBeanDefinitionLoader(BeanDefinitionRegistry registry, Object[] sources) {
+   	return new BeanDefinitionLoader(registry, sources);
+   }
+   ```
+
+
+3. 
 
 
 
@@ -957,9 +1349,487 @@ public static <T> List<T> loadFactories(Class<T> factoryType, @Nullable ClassLoa
 }
 ```
 
+### 4. `BeanDefinitionLoader`
+
+   ```java
+   /**
+    * Create a new {@link BeanDefinitionLoader} that will load beans into the specified
+    * {@link BeanDefinitionRegistry}.
+    * @param registry the bean definition registry that will contain the loaded beans
+    * @param sources the bean sources
+    */
+   BeanDefinitionLoader(BeanDefinitionRegistry registry, Object... sources) {
+   	Assert.notNull(registry, "Registry must not be null");
+   	Assert.notEmpty(sources, "Sources must not be empty");
+   	this.sources = sources;
+       // 创建一个注解单例定义读取器
+   	this.annotatedReader = new AnnotatedBeanDefinitionReader(registry);
+   	this.xmlReader = new XmlBeanDefinitionReader(registry);
+   	this.groovyReader = (isGroovyPresent() ? new GroovyBeanDefinitionReader(registry) : null);
+   	this.scanner = new ClassPathBeanDefinitionScanner(registry);
+   	this.scanner.addExcludeFilter(new ClassExcludeFilter(sources));
+   }
+   ```
 
 
-### 4. JVM加载jdk的过程
+
+### 5. `AnnotatedBeanDefinitionReader`
+
+注解单例定义读取器的构造方法
+
+```java
+/**
+ * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry.
+ * <p>If the registry is {@link EnvironmentCapable}, e.g. is an {@code ApplicationContext},
+ * the {@link Environment} will be inherited, otherwise a new
+ * {@link StandardEnvironment} will be created and used.
+ * @param registry the {@code BeanFactory} to load bean definitions into,
+ * in the form of a {@code BeanDefinitionRegistry}
+ * @see #AnnotatedBeanDefinitionReader(BeanDefinitionRegistry, Environment)
+ * @see #setEnvironment(Environment)
+ */
+public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
+	this(registry, getOrCreateEnvironment(registry));
+}
+```
+
+#### 5.1. 获取环境
+
+1. 在该构造方法中首先获取环境，由于`AnnotationConfigServletWebServerApplicationContext`的父父父父类`AbstractApplicationContext`实现了`EnvironmentCapable`接口，因此通过该类获取环境
+
+   ```java
+   /**
+    * Get the Environment from the given registry if possible, otherwise return a new
+    * StandardEnvironment.
+    */
+   private static Environment getOrCreateEnvironment(BeanDefinitionRegistry registry) {
+   	Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+   	if (registry instanceof EnvironmentCapable environmentCapable) {
+           // 通过容器获取环境
+   		return environmentCapable.getEnvironment();
+   	}
+   	return new StandardEnvironment();
+   }
+   ```
+
+2. `AbstractApplicationContext`的环境在[1.3.8.1. 设置上下文的环境](# 1.3.8.1. 设置上下文的环境)后已经存在，因此直接获取即可
+
+   ```java
+   /**
+    * Return the {@code Environment} for this application context in configurable
+    * form, allowing for further customization.
+    * <p>If none specified, a default environment will be initialized via
+    * {@link #createEnvironment()}.
+    */
+   @Override
+   public ConfigurableEnvironment getEnvironment() {
+   	if (this.environment == null) {
+   		this.environment = createEnvironment();
+   	}
+       // 直接获取环境
+   	return this.environment;
+   }
+   ```
+
+#### 5.2. 开始构造
+
+获取到环境后调用另一个构造方法，构造时除了设置一个`ConditionEvaluator`外，主要是注册容器中所有相关的注解后处理器
+
+```java
+/**
+ * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry,
+ * using the given {@link Environment}.
+ * @param registry the {@code BeanFactory} to load bean definitions into,
+ * in the form of a {@code BeanDefinitionRegistry}
+ * @param environment the {@code Environment} to use when evaluating bean definition
+ * profiles.
+ * @since 3.1
+ */
+public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, Environment environment) {
+	Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+	Assert.notNull(environment, "Environment must not be null");
+	this.registry = registry;
+    // 给读取器设置一个ConditionEvaluator，用来在读取注解的Bean的时候根据@Conditional条件决定是否注册
+	this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
+    // 注册容器中所有相关的注解后处理器
+	AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
+}
+```
+
+##### 5.2.1. 注册后处理器
+
+```java
+/**
+ * Register all relevant annotation post processors in the given registry.
+ * @param registry the registry to operate on
+ */
+public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
+	registerAnnotationConfigProcessors(registry, null);
+}
+```
+
+```java
+/**
+ * Register all relevant annotation post processors in the given registry.
+ * @param registry the registry to operate on
+ * @param source the configuration source element (already extracted)
+ * that this registration was triggered from. May be {@code null}.
+ * @return a Set of BeanDefinitionHolders, containing all bean definitions
+ * that have actually been registered by this call
+ */
+public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
+		BeanDefinitionRegistry registry, @Nullable Object source) {
+    // 获取单例工厂
+	DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
+	if (beanFactory != null) {
+        // 单例工厂已经有了依赖比较器，其继承了 AnnotationAwareOrderComparator 类，因此无需在此设置
+		if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
+			beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+		}
+        // 单例工厂已经有了自动注入候选实例解析器，其继承了 ContextAnnotationAutowireCandidateResolver 类，因此无需在此设置
+		if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
+			beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+		}
+	}
+	Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<>(8);
+    // 判断上下文中是否已经存在org.springframework.context.annotation.internalConfigurationAnnotationProcessor 的单例定义，如果不存在继续执行内部逻辑
+	if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+        // 创建一个ConfigurationClassPostProcessor 的根单例定义
+		RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
+        // 设置根单例定义的配置源
+		def.setSource(source);
+        // 注册后处理器
+		beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
+	}
+	if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+		RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
+		def.setSource(source);
+		beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
+	}
+	// Check for Jakarta Annotations support, and if present add the CommonAnnotationBeanPostProcessor.
+	if ((jakartaAnnotationsPresent || jsr250Present) &&
+			!registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+		RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
+		def.setSource(source);
+		beanDefs.add(registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME));
+	}
+	// Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.
+	if (jpaPresent && !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+		RootBeanDefinition def = new RootBeanDefinition();
+		try {
+			def.setBeanClass(ClassUtils.forName(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME,
+					AnnotationConfigUtils.class.getClassLoader()));
+		}
+		catch (ClassNotFoundException ex) {
+			throw new IllegalStateException(
+					"Cannot load optional framework class: " + PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, ex);
+		}
+		def.setSource(source);
+		beanDefs.add(registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME));
+	}
+	if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
+		RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
+		def.setSource(source);
+		beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME));
+	}
+	if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
+		RootBeanDefinition def = new RootBeanDefinition(DefaultEventListenerFactory.class);
+		def.setSource(source);
+		beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME));
+	}
+	return beanDefs;
+}
+```
+
+###### 5.2.1.1. 获取工厂
+
+```java
+private static DefaultListableBeanFactory unwrapDefaultListableBeanFactory(BeanDefinitionRegistry registry) {
+    // 容器不是工厂，跳过
+	if (registry instanceof DefaultListableBeanFactory dlbf) {
+		return dlbf;
+	}
+    // 容器实际上是上下文，因此转型
+	else if (registry instanceof GenericApplicationContext gac) {
+        // 获取工厂
+		return gac.getDefaultListableBeanFactory();
+	}
+	else {
+		return null;
+	}
+}
+```
+
+###### 5.2.1.2. 判断单例定义是否已经存在
+
+判断上下文中是否已经存在单例定义：首先获取到工厂，然后在工厂内部的单例定义map中查找
+
+```java
+public boolean containsBeanDefinition(String beanName) {
+	return getBeanFactory().containsBeanDefinition(beanName);
+}
+```
+
+```java
+public boolean containsBeanDefinition(String beanName) {
+	Assert.notNull(beanName, "Bean name must not be null");
+	return this.beanDefinitionMap.containsKey(beanName);
+}
+```
+
+###### 5.2.1.3. 注册单例定义的后处理器
+
+注册时首先设置该定义的角色为基类，然后注册，最后将定义包装在一个单例定义保存器并返回
+
+```java
+private static BeanDefinitionHolder registerPostProcessor(
+		BeanDefinitionRegistry registry, RootBeanDefinition definition, String beanName) {
+	definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+	registry.registerBeanDefinition(beanName, definition);
+	return new BeanDefinitionHolder(definition, beanName);
+}
+```
+
+注册单例定义的主要过程：
+
+1. `GenericApplicationContext`的`registerBeanDefinition()`方法要求其内部的单例工厂注册
+
+   ```java
+   public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+   		throws BeanDefinitionStoreException {
+   	this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
+   }
+   ```
+
+2. 单例工厂`DefaultListableBeanFactory`注册的过程：
+
+   ```java
+   
+   ```
+   
+   
+
+### 6. `DefaultListableBeanFactory`
+
+注册单例的过程
+
+```java
+public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+		throws BeanDefinitionStoreException {
+	Assert.hasText(beanName, "Bean name must not be empty");
+	Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+	if (beanDefinition instanceof AbstractBeanDefinition abd) {
+		try {
+            // 转型，然后验证定义是否合法（主要是验证里面是否存在注解了@Override但实际上没有覆盖父类方法的方法）
+			abd.validate();
+		}
+		catch (BeanDefinitionValidationException ex) {
+			throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+					"Validation of bean definition failed", ex);
+		}
+	}
+	BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+    // 如果之前存在同名的定义
+	if (existingDefinition != null) {
+        // 如果设置了不允许覆盖，那只能抛出异常
+		if (!isAllowBeanDefinitionOverriding()) {
+			throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
+		}
+        // 如果已有的定义更重要，要用日志记录下来，但不做任何操作
+		else if (existingDefinition.getRole() < beanDefinition.getRole()) {
+			// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+			if (logger.isInfoEnabled()) {
+				logger.info("Overriding user-defined bean definition for bean '" + beanName +
+						"' with a framework-generated bean definition: replacing [" +
+						existingDefinition + "] with [" + beanDefinition + "]");
+			}
+		}
+        // 如果已有的定义和新的定义不同，同样记录下来
+		else if (!beanDefinition.equals(existingDefinition)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Overriding bean definition for bean '" + beanName +
+						"' with a different definition: replacing [" + existingDefinition +
+						"] with [" + beanDefinition + "]");
+			}
+		}
+        // 如果相同，记录下来
+		else {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Overriding bean definition for bean '" + beanName +
+						"' with an equivalent definition: replacing [" + existingDefinition +
+						"] with [" + beanDefinition + "]");
+			}
+		}
+        // 最后除非抛出异常，否则都把覆盖掉旧的定义
+		this.beanDefinitionMap.put(beanName, beanDefinition);
+	}
+    // 如果之前不存在同名的定义
+	else {
+        // 如果存在该定义的简称
+		if (isAlias(beanName)) {
+            // 如果不允许覆盖
+			if (!isAllowBeanDefinitionOverriding()) {
+                // 获取当前定义名的简称
+				String aliasedName = canonicalName(beanName);
+                // 如果这个简称存在于单例定义map中，就抛出异常，表示遇到需要覆盖的情况但不允许覆盖
+				if (containsBeanDefinition(aliasedName)) {  // alias for existing bean definition
+					throw new BeanDefinitionOverrideException(
+							beanName, beanDefinition, getBeanDefinition(aliasedName));
+				}
+                // 简称对应的定义不存在更要抛出异常了
+				else {  // alias pointing to non-existing bean definition
+					throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+							"Cannot register bean definition for bean '" + beanName +
+							"' since there is already an alias for bean '" + aliasedName + "' bound.");
+				}
+			}
+            // 如果允许覆盖，就删掉简称
+			else {
+				removeAlias(beanName);
+			}
+		}
+        // 如果单例创建已经开始了，需要同步
+		if (hasBeanCreationStarted()) {
+			// Cannot modify startup-time collection elements anymore (for stable iteration)
+			synchronized (this.beanDefinitionMap) {
+                // 把单例定义放入单例定义map
+				this.beanDefinitionMap.put(beanName, beanDefinition);
+                // 把定义名更新到单例定义名列表中
+				List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
+				updatedDefinitions.addAll(this.beanDefinitionNames);
+				updatedDefinitions.add(beanName);
+				this.beanDefinitionNames = updatedDefinitions;
+                // 从手工创建单例名的列表中删除该名称
+				removeManualSingletonName(beanName);
+			}
+		}
+        // 如果单例创建还没开始，不需要同步，直接更新即可
+		else {
+			// Still in startup registration phase
+			this.beanDefinitionMap.put(beanName, beanDefinition);
+			this.beanDefinitionNames.add(beanName);
+			removeManualSingletonName(beanName);
+		}
+		this.frozenBeanDefinitionNames = null;
+	}
+    // 如果存在同名的定义，或者单例对象map中存在该单例
+	if (existingDefinition != null || containsSingleton(beanName)) {
+        // 就
+		resetBeanDefinition(beanName);
+	}
+	else if (isConfigurationFrozen()) {
+		clearByTypeCache();
+	}
+}
+```
+
+#### 6.1. 重置单例缓存
+
+```java
+/**
+ * Reset all bean definition caches for the given bean,
+ * including the caches of beans that are derived from it.
+ * <p>Called after an existing bean definition has been replaced or removed,
+ * triggering {@link #clearMergedBeanDefinition}, {@link #destroySingleton}
+ * and {@link MergedBeanDefinitionPostProcessor#resetBeanDefinition} on the
+ * given bean and on all bean definitions that have the given bean as parent.
+ * @param beanName the name of the bean to reset
+ * @see #registerBeanDefinition
+ * @see #removeBeanDefinition
+ */
+protected void resetBeanDefinition(String beanName) {
+	// Remove the merged bean definition for the given bean, if already created.
+	clearMergedBeanDefinition(beanName);
+	// Remove corresponding bean from singleton cache, if any. Shouldn't usually
+	// be necessary, rather just meant for overriding a context's default beans
+	// (e.g. the default StaticMessageSource in a StaticApplicationContext).
+	destroySingleton(beanName);
+	// Notify all post-processors that the specified bean definition has been reset.
+	for (MergedBeanDefinitionPostProcessor processor : getBeanPostProcessorCache().mergedDefinition) {
+		processor.resetBeanDefinition(beanName);
+	}
+	// Reset all bean definitions that have the given bean as parent (recursively).
+	for (String bdName : this.beanDefinitionNames) {
+		if (!beanName.equals(bdName)) {
+			BeanDefinition bd = this.beanDefinitionMap.get(bdName);
+			// Ensure bd is non-null due to potential concurrent modification of beanDefinitionMap.
+			if (bd != null && beanName.equals(bd.getParentName())) {
+				resetBeanDefinition(bdName);
+			}
+		}
+	}
+}
+```
+
+1. 清除合并的单例定义
+
+   ```java
+   protected void clearMergedBeanDefinition(String beanName) {
+   	super.clearMergedBeanDefinition(beanName);
+   	this.mergedBeanDefinitionHolders.remove(beanName);
+   }
+   ```
+
+   ```java
+   /**
+    * Remove the merged bean definition for the specified bean,
+    * recreating it on next access.
+    * @param beanName the bean name to clear the merged definition for
+    */
+   protected void clearMergedBeanDefinition(String beanName) {
+   	RootBeanDefinition bd = this.mergedBeanDefinitions.get(beanName);
+   	if (bd != null) {
+   		bd.stale = true;
+   	}
+   }
+   ```
+
+2. 清除单例
+
+   ```java
+   public void destroySingleton(String beanName) {
+   	super.destroySingleton(beanName);
+   	removeManualSingletonName(beanName);
+   	clearByTypeCache();
+   }
+   ```
+
+   1. 调用父类的同名方法执行清理
+
+      ```java
+      /**
+       * Destroy the given bean. Delegates to {@code destroyBean}
+       * if a corresponding disposable bean instance is found.
+       * @param beanName the name of the bean
+       * @see #destroyBean
+       */
+      public void destroySingleton(String beanName) {
+      	// Remove a registered singleton of the given name, if any.
+      	removeSingleton(beanName);
+      	// Destroy the corresponding DisposableBean instance.
+      	DisposableBean disposableBean;
+      	synchronized (this.disposableBeans) {
+      		disposableBean = this.disposableBeans.remove(beanName);
+      	}
+      	destroyBean(beanName, disposableBean);
+      }
+      ```
+
+   2. 
+
+
+
+
+
+
+
+
+
+
+
+## JDK
+
+### 1. JVM加载jdk的过程
 
 1. 虚拟机调用`System.initPhase2()`执行模块系统初始化，加载jdk里的所有模块
 
@@ -1386,4 +2256,10 @@ Broker到消费者：
 # 参考资料
 
 [^1]: [初探JAVA 10之CDS](https://www.jianshu.com/p/890196bf529a)
+
+[^2]: [定位Bean 扫描路径 ](https://blog.csdn.net/Leon_Jinhai_Sun/article/details/109703180)
+[^3]: [深入理解ClassPathBeanDefinitionScanner](https://www.cnblogs.com/Xianhuii/p/17051837.html)
+
+[^4]: [ignoreDependencyInterface和ignoreDependencyType的作用?](https://www.cnblogs.com/cookieNik/p/14363940.html)
+[^5]: [spring ignoreDependencyInterface讲解](https://blog.csdn.net/weixin_43064364/article/details/125836518)
 
